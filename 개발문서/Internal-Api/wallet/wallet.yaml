@@ -1,0 +1,530 @@
+swagger: '2.0'
+info:
+  version: 1.0.0
+  title: DEXKO 지갑 서버 내부 API
+  description: "WAS와 통신하는 지갑서버 API입니다."
+  contact:
+    email: sungjun@kdex.kr
+
+schemes:
+- http
+- https
+host: wallet.dexko.internal
+basePath: /api
+
+securityDefinitions:
+  apiAuth:
+    type: apiKey
+    in: header
+    name: X-Server-Key
+
+tags:
+- name: Wallet
+- name: System
+- name: Summary
+  description: "Result of API combination - optional"
+
+paths:
+  /{coinCode}/getBalance:
+    post:
+      tags:
+      - Wallet
+      summary: "Coin 현재 개수 반환 - 전체"
+      security:
+      - apiAuth: []
+      consumes:
+      - application/json
+      parameters:
+      - name: coinCode
+        in: path
+        type: string
+        required: true
+        description: "코인 코드 - 대문자"
+      - in: "body"
+        name: "body"
+        description: ""
+        required: true
+        schema:
+          $ref: "#/definitions/SendWithPkey"
+      produces:
+      - application/json
+      responses:
+        200:
+          description: "OK"
+          schema:
+            type: object
+            properties:
+              status:
+                type: string
+                enum: ['true', 'false']
+              message:
+                type: string
+              data:
+                type: array
+                items:
+                  $ref: "#/definitions/BalanceData"
+        500:
+          $ref: '#/responses/500'
+  /{coinCode}/getBalance/{balanceType}:
+    post:
+      tags:
+      - Wallet
+      summary: "Coin 현재 개수 반환 - 타입별"
+      description: "
+        balanceType
+        ---
+        - client: user portal
+        - hot: 20%
+        - operation
+        - warm: 80%
+        - cold: movable
+      "
+      security:
+      - apiAuth: []
+      consumes:
+      - application/json
+      parameters:
+      - name: coinCode
+        in: path
+        type: string
+        required: true
+        description: "코인 코드 - 대문자"
+      - name: balanceType
+        in: path
+        type: string
+        required: true
+        description: "밸런스 타입"
+        enum: ['client', 'hot', 'operation', 'warm', 'cold']
+      - in: "body"
+        name: "body"
+        description: ""
+        required: true
+        schema:
+          $ref: "#/definitions/SendWithPkey"
+      produces:
+      - application/json
+      responses:
+        200:
+          description: "OK"
+          schema:
+            type: object
+            properties:
+              status:
+                type: string
+                enum: ['true', 'false']
+              message:
+                type: string
+              data:
+                $ref: "#/definitions/BalanceData"
+        500:
+          $ref: '#/responses/500'
+      deprecated: true
+  /{coinCode}/balances/{address}:
+    post:
+      tags:
+      - Wallet
+      summary: "Coin 현재 개수 반환 - 주소별"
+      description: "
+      "
+      security:
+      - apiAuth: []
+      consumes:
+      - application/json
+      parameters:
+      - name: coinCode
+        in: path
+        type: string
+        required: true
+        description: "코인 코드 - 대문자"
+      - name: address
+        in: path
+        type: string
+        required: true
+        description: "주소"
+      - in: "body"
+        name: "body"
+        description: ""
+        required: true
+        schema:
+          $ref: "#/definitions/SendWithPkey"
+      produces:
+      - application/json
+      responses:
+        200:
+          description: "OK"
+          schema:
+            type: object
+            properties:
+              status:
+                type: string
+                enum: ['true', 'false']
+              message:
+                type: string
+              data:
+                $ref: "#/definitions/AddressBalanceData"
+        500:
+          $ref: '#/responses/500'
+  /{coinCode}/createAddress:
+    post:
+      tags:
+      - Wallet
+      summary: "Coin 지갑 주소 생성하기"
+      description: ""
+      security:
+      - apiAuth: []
+      consumes:
+      - application/json
+      parameters:
+      - name: coinCode
+        in: path
+        type: string
+        required: true
+        description: "코인 코드 - 대문자"
+      - in: "body"
+        name: "body"
+        description: ""
+        required: true
+        schema:
+          $ref: "#/definitions/CreateAddressRequest"
+      produces:
+      - application/json
+      responses:
+        200:
+          description: "OK"
+          schema:
+            type: object
+            properties:
+              status:
+                type: string
+                enum: ['true', 'false']
+              message:
+                type: string
+              data:
+                $ref: "#/definitions/AddressData"
+        500:
+          $ref: '#/responses/500'
+  /{coinCode}/sendCoin:
+    post:
+      tags:
+      - Wallet
+      summary: "Coin 지갑에서 코인보내기"
+      description: "
+        전송 과정 요약
+        ---
+        Player:
+          - USER
+          - CRON
+          - WAS
+          - WALLET
+
+        0. USER가 WAS를 통해 코인 송금 요청
+          . TRANS_REQUEST.TX_STATUS=R 로 저장
+          . 지속적으로 누적되는 데이터
+        1. CRON에서 WAS를 호출
+        2. WAS가 WALLET을 호출
+          . TRANS_REQUEST.TX_STATUS=R인 항목(TXIDX)을 20개씩 묶어서 WALLET 호출
+          . WALLET은 TXIDX를 인자로 적절한 요청인지 확인하는 DB 프로시저 호출 후 실제 트랜잭션 발생
+        3. WALLET은 TXIDX 각각에 대응하는 txidx / tx_id / status / log와 함께 리턴
+        4. WAS는 3에서 리턴받은 결과를 TRANS_REQUEST에 업데이트
+        5. WALLET은 추후 CONFIRMATION 업데이트에만 관여
+      "
+      security:
+      - apiAuth: []
+      consumes:
+      - application/json
+      parameters:
+      - name: coinCode
+        in: path
+        type: string
+        required: true
+        description: "코인 코드 - 대문자"
+      - in: "body"
+        name: "body"
+        description: ""
+        required: true
+        schema:
+          $ref: "#/definitions/SendRequest"
+      produces:
+      - application/json
+      responses:
+        200:
+          description: "OK"
+          schema:
+            type: object
+            properties:
+              status:
+                type: string
+                enum: ['true', 'false']
+              message:
+                type: string
+              data:
+                type: array
+                items:
+                  $ref: "#/definitions/SendResponse"
+        500:
+          $ref: '#/responses/500'
+  /address-validator:
+    post:
+      tags:
+      - Wallet
+      summary: "Coin 주소 유효성 검사"
+      security:
+      - apiAuth: []
+      consumes:
+      - application/json
+      parameters:
+      - in: "body"
+        name: "body"
+        description: ""
+        required: true
+        schema:
+          $ref: "#/definitions/AddressValidorRequests"
+      produces:
+      - application/json
+      responses:
+        200:
+          description: "OK"
+          schema:
+            type: object
+            properties:
+              status:
+                type: string
+                enum: ['true', 'false']
+              message:
+                type: string
+              data:
+                type: array
+                items:
+                  $ref: "#/definitions/AddressValidorResponse"
+        500:
+          $ref: '#/responses/500'
+      deprecated: true
+  /{coinCode}/address-validator/{address}:
+    post:
+      tags:
+      - Wallet
+      summary: "Coin 주소 유효성 검사"
+      security:
+      - apiAuth: []
+      consumes:
+      - application/json
+      parameters:
+      - name: coinCode
+        in: path
+        type: string
+        required: true
+        description: "코인 코드 - 대문자"
+      - name: address
+        in: path
+        type: string
+        required: true
+        description: "지갑 주소"
+      - in: "body"
+        name: "body"
+        description: ""
+        required: true
+        schema:
+          $ref: "#/definitions/SendWithPkey"
+      produces:
+      - application/json
+      responses:
+        200:
+          description: "OK"
+          schema:
+            type: object
+            properties:
+              status:
+                type: string
+                enum: ['true', 'false']
+              message:
+                type: string
+              data:
+                $ref: "#/definitions/AddressValidorResponse"
+        500:
+          $ref: '#/responses/500'
+      deprecated: false
+  /{coinCode}/transactions/get/{transactionId}:
+    post:
+      tags:
+      - Wallet
+      summary: "트랜잭션 네트워크 수수료 리턴"
+      security:
+      - apiAuth: []
+      consumes:
+      - application/json
+      parameters:
+      - name: coinCode
+        in: path
+        type: string
+        required: true
+        description: "코인 코드 - 대문자"
+      - name: transactionId
+        in: path
+        type: string
+        required: true
+        description: "Transaction ID"
+      - in: "body"
+        name: "body"
+        description: ""
+        required: true
+        schema:
+          $ref: "#/definitions/SendWithPkey"
+      produces:
+      - application/json
+      responses:
+        200:
+          description: "OK"
+          schema:
+            type: object
+            properties:
+              status:
+                type: string
+                enum: ['true', 'false']
+              message:
+                type: string
+              data:
+                $ref: "#/definitions/TransactionResponse"
+        500:
+          $ref: '#/responses/500'
+      deprecated: false
+
+definitions:
+  CreateAddressRequest:
+    type: object
+    properties:
+      pkey:
+        type: string
+  BalanceData:
+    type: object
+    properties:
+      date:
+        type: string
+      coin:
+        type: string
+      type:
+        type: string
+      balance:
+        type: number
+  AddressBalanceData:
+    type: object
+    properties:
+      coin:
+        type: string
+      balance:
+        type: number
+  AddressData:
+    type: object
+    properties:
+      coin:
+        type: string
+      address:
+        type: string
+      tag:
+        type: string
+  SendWithPkey:
+    type: object
+    properties:
+      pkey:
+        type: string
+  SendRequest:
+    type: object
+    properties:
+      data:
+        type: array
+        items:
+          $ref: '#/definitions/SendData'
+      token:
+        $ref: '#/definitions/AuthToken'
+  AuthToken:
+    type: object
+    properties:
+      tokenId:
+        type: integer
+      encKey:
+        type: string
+      iv:
+        type: string
+  SendResponse:
+    type: object
+    properties:
+      txidx:
+        type: integer
+      status:
+        type: boolean
+      log:
+        type: string
+      tx_id:
+        type: string
+      tx_date:
+        type: integer
+      tx_net_fee:
+        type: number
+      coin:
+        type: string
+  TransactionResponse:
+    type: object
+    properties:
+      coin:
+        type: string
+      status:
+        type: boolean
+      log:
+        type: string
+      tx_id:
+        type: string
+      tx_date:
+        type: integer
+      tx_net_fee:
+        type: number
+  SendData:
+    type: object
+    properties:
+      txidx:
+        type: integer
+      faddress:
+        type: string
+      ftag:
+        type: string
+      taddress:
+        type: string
+      ttag:
+        type: string
+      amount:
+        type: number
+  AddressValidorRequests:
+    type: object
+    properties:
+      data:
+        type: array
+        items:
+          $ref: '#/definitions/AddressValidorRequest'
+      pkey:
+        type: string
+  AddressValidorRequest:
+    type: object
+    properties:
+      coin:
+        type: string
+      address:
+        type: string
+  AddressValidorResponse:
+    type: object
+    properties:
+      coin:
+        type: string
+      address:
+        type: string
+      valid:
+        type: boolean
+      contract:
+        type: boolean
+
+parameters:
+
+responses:
+  500:
+    description: "Other Exceptions"
+
+externalDocs:
+  description: Find out more about Swagger
+  url: http://swagger.io

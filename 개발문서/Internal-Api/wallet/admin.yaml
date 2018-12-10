@@ -1,0 +1,128 @@
+swagger: '2.0'
+info:
+  version: 1.0.0
+  title: DEXKO 지갑 서버 BACKOFFICE API
+  description: "WAS와 통신하는 지갑서버 API입니다."
+  contact:
+    email: sungjun@kdex.kr
+
+schemes:
+- http
+- https
+host: api.wallet.internal.dexko.co.kr
+basePath: /admin
+
+securityDefinitions:
+  apiAuth:
+    type: apiKey
+    in: header
+    name: X-Server-Key
+
+tags:
+- name: Admin
+- name: Summary
+  description: "Result of API combination - optional"
+
+paths:
+  /resetAddress:
+    post:
+      tags:
+      - Admin
+      summary: "지갑 주소 생성"
+      security:
+      - apiAuth: []
+      consumes:
+      - application/json
+      parameters:
+      - name: CA_TYPE
+        in: query
+        type: string
+        required: true
+        description: "지갑 타입 대문자 (HOT, WARM, COLD)"
+      - in: "body"
+        name: "body"
+        description: ""
+        required: true
+        schema:
+          $ref: "#/definitions/AddressS3Data"
+      produces:
+      - application/json
+      responses:
+        200:
+          description: "OK"
+          schema:
+            type: object
+            properties:
+              status:
+                type: string
+                enum: ['true', 'false']
+              message:
+                type: string
+        500:
+          $ref: '#/responses/500'
+
+
+definitions:
+  AddressS3Data:
+    type: object
+    properties:
+      address:
+        type: object
+        properties:
+          status:
+            type: boolean
+          data:
+            type: object
+            properties:
+              coin:
+                type: string
+              address:
+                type: string
+              tag:
+                type: string
+              rscript:
+                type: string
+          message:
+            type: string
+      keys:
+        type: object
+        properties:
+          WALLET:
+            $ref: "#/definitions/KeyData"
+          WAS:
+            $ref: "#/definitions/KeyData" 
+          BO:
+            $ref: "#/definitions/KeyData" 
+  KeyData:
+    type: object
+    properties:
+      status:
+        type: boolean
+      data:
+        type: object
+        properties:
+          pub:
+            type: string
+          pri:
+            type: string
+      message:
+        type: string
+  ResetAddressResponse:
+    type: object
+    properties:
+      coin:
+        type: string
+      address:
+        type: string
+      valid:
+        type: boolean
+
+parameters:
+
+responses:
+  500:
+    description: "Other Exceptions"
+
+externalDocs:
+  description: Find out more about Swagger
+  url: http://swagger.io

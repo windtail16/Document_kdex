@@ -1,0 +1,450 @@
+swagger: '2.0'
+info:
+  version: 1.0.0
+  title: DEXKO SERVER API
+  description: An API For Hyundai-Pay ATM
+  contact:
+    email: jhkim@kdex.kr
+
+externalDocs:
+  description: Find out more about Swagger
+  url: http://swagger.io
+
+schemes:
+- https
+host: api.dev.dexko.co.kr
+basePath: /v1
+
+tags:
+- name: Privacy
+- name: User
+- name: Auth
+- name: Coin
+- name: Market
+- name: Wallet
+- name: Transfer
+- name: Price
+- name: Order
+- name: Address
+- name: Center
+- name: CS
+- name: Board
+- name: Chart
+- name: Tick
+- name: Html
+- name: Asset
+- name: Notification
+- name: Config
+- name: Summary
+  description: "Result of API combination - optional"
+
+paths:
+  /me:
+    get:
+      tags:
+      - User
+      summary: "로그인 사용자 정보"
+      description: "로그인한 사용자 정보 가져오기"
+      produces:
+      - application/json
+      responses:
+        200:
+          description: "OK"
+          schema:
+            type: object
+            properties:
+              header:
+                $ref: '#/definitions/ApiResponse'
+              result:
+                $ref: '#/definitions/memberInfo'
+        404:
+          $ref: '#/responses/404-user'
+        500:
+          $ref: '#/responses/500'
+
+  /login-atm:
+    post:
+      tags:
+      - Auth
+      summary: "로그인-ATM 버전"
+      description: "
+        ATM용 로그인
+        ---
+        **400** 응답에 대한 세부 코드(header.code)
+        - 4001: 인증 정보 불일치
+        - 4011: 잠김 사용자
+        - 4012: 휴면 계정
+        - 4021: 6개월 이상 비밀번호 변경하지 않은 사용자
+      "
+      consumes:
+      - application/x-www-form-urlencoded
+      parameters:
+      - name: email
+        in: formData
+        type: string
+        required: true
+      - name: password
+        in: formData
+        type: string
+        required: true
+      produces:
+      - application/json
+      responses:
+        200:
+          description: "2차 인증 필요"
+          schema:
+            type: object
+            properties:
+              header:
+                $ref: '#/definitions/ApiResponse'
+              result:
+                $ref: '#/definitions/loginTempResponse'
+        201:
+          description: "LOGGED-IN"
+          schema:
+            type: object
+            properties:
+              header:
+                $ref: '#/definitions/ApiResponse'
+              result:
+                $ref: '#/definitions/memberInfo'
+        400:
+          $ref: '#/responses/400'
+        404:
+          $ref: '#/responses/404-user'
+        500:
+          $ref: '#/responses/500'
+
+  /logout:
+    get:
+      tags:
+      - Auth
+      summary: "로그아웃"
+      description: "로그아웃 처리"
+      responses:
+        204:
+          description: "LOGGED-OUT"
+        500:
+          $ref: '#/responses/500'
+
+  /coins:
+    get:
+      tags:
+      - Coin
+      summary: "코인 정보 리스트"
+      description: "현재 서비스 중인 코인 정보 리턴"
+      responses:
+        200:
+          description: "OK"
+          schema:
+            type: object
+            properties:
+              header:
+                $ref: '#/definitions/ApiResponse'
+              result:
+                type: array
+                items:
+                  $ref: '#/definitions/coinInfo'
+        400:
+          $ref: '#/responses/400'
+        500:
+          $ref: '#/responses/500'
+  /coins/{coinId}:
+    get:
+      tags:
+      - Coin
+      summary: "코인 상세"
+      parameters:
+      - name: coinId
+        in: path
+        type: integer
+        required: true
+      produces:
+      - application/json
+      responses:
+        200:
+          description: "OK"
+          schema:
+            type: object
+            properties:
+              header:
+                $ref: '#/definitions/ApiResponse'
+              result:
+                $ref: '#/definitions/coinInfo'
+        400:
+          $ref: '#/responses/400'
+        404:
+          $ref: '#/responses/404'
+        500:
+          $ref: '#/responses/500'
+
+  /markets:
+    get:
+      tags:
+      - Market
+      summary: "현재 서비스 중인 마켓 정보"
+      parameters:
+      - name: baseCoinId
+        in: query
+        type: integer
+      responses:
+        200:
+          description: "OK"
+          schema:
+            type: object
+            properties:
+              header:
+                $ref: '#/definitions/ApiResponse'
+              result:
+                type: array
+                items:
+                  $ref: '#/definitions/marketInfo'
+        400:
+          $ref: '#/responses/400'
+        500:
+          $ref: '#/responses/500'
+  /markets/{marketId}:
+    get:
+      tags:
+      - Market
+      summary: "마켓 상세"
+      parameters:
+      - name: marketId
+        in: path
+        type: integer
+        required: true
+      produces:
+      - application/json
+      responses:
+        200:
+          description: "OK"
+          schema:
+            type: object
+            properties:
+              header:
+                $ref: '#/definitions/ApiResponse'
+              result:
+                $ref: '#/definitions/marketInfo'
+        400:
+          $ref: '#/responses/400'
+        404:
+          $ref: '#/responses/404'
+        500:
+          $ref: '#/responses/500'
+
+definitions:
+  ApiResponse:
+    type: object
+    properties:
+      code:
+        type: integer
+      message:
+        type: string
+      requestTime:
+        type: string
+        format: "YYYY-MM-DDTHH:II:SSZ"
+        example: "2018-01-12T13:49:36Z"
+        description: "YYYY-MM-DDTHH:II:SSZ"
+      responseTime:
+        type: string
+        format: "YYYY-MM-DDTHH:II:SSZ"
+        example: "2018-01-12T13:49:36Z"
+        description: "rfc3339: https://tools.ietf.org/html/rfc3339"
+  memberInfo:
+    properties:
+      id:
+        type: integer
+      countryId:
+        type: integer
+      nickname:
+        type: string
+      name:
+        type: string
+      groupId:
+        type: integer
+      status:
+        type: string
+        enum: ['N', 'E', 'R', 'B', 'Q', 'L', 'H', 'W']
+        description: "
+          N: 최초가입,\n
+          E: 이메일 인증 완료,\n
+          R: 실명 인증 완료,\n
+          B: 계좌 인증 완료,\n
+          Q: 탈퇴,\n
+          L: 잠금,\n
+          H: 휴면계정,
+          W: 탈퇴신청
+        "
+      authInfo:
+        $ref: '#/definitions/authInfo'
+      level:
+        type: integer
+      fee:
+        $ref: '#/definitions/feeInfo'
+  authInfo:
+    properties:
+      authStep:
+        type: string
+        enum: ['N', 'E', 'R', 'B', 'Q', 'L', 'H', 'W']
+      otp:
+        type: string
+        enum: ['N', 'Y']
+        description: "OTP 사용 여부"
+      otpDate:
+        type: string
+        description: "OTP 등록 일자"
+      residence:
+        type: string
+        enum: ['', 'R', 'J', 'E']
+        description: "
+          - '': 신청 이력 없음
+          - R: 신청중
+          - J: 거절
+          - E: 승인 완료
+        "
+      mpRegtime:
+        type: string
+        description: "비대면인증 등록시간"
+      mpAltertime:
+        type: string
+        description: "비대면인증 수정시간"
+  loginTempResponse:
+    properties:
+      token:
+        type: string
+      supportedMeans:
+        type: array
+        items:
+          type: string
+  coinInfo:
+    properties:
+      id:
+        type: integer
+      code:
+        type: string
+      name:
+        type: string
+      color1:
+        type: string
+      color2:
+        type: string
+      trackUrl:
+        type: string
+      minOut:
+        type: number
+      outFee:
+        type: number
+      sort:
+        type: integer
+        description: "정렬 코드, descending order"
+      confirmCount:
+        type: integer
+      enable:
+        type: string
+        enum: ['N', 'Y']
+      keyCurrency:
+        type: string
+        enum: ['N', 'Y']
+        description: "기축통화 여부"
+  walletInfo:
+    properties:
+      memberId:
+        type: integer
+      coinId:
+        type: integer
+      bankId:
+        type: integer
+      address:
+        type: string
+      tag:
+        type: string
+      total:
+        type: number
+      usingCoin:
+        type: number
+      createdAt:
+        type: string
+        format: "YYYY-MM-DDTHH:II:SSZ"
+        example: "2018-01-12T13:49:36Z"
+  marketInfo:
+    properties:
+      id:
+        type: integer
+      code:
+        type: string
+      baseCoinId:
+        type: integer
+      baseCoinCode:
+        type: string
+      coinId:
+        type: integer
+      dealCoinCode:
+        type: string
+      callUnit:
+        type: number
+      minTrade:
+        type: number
+      openTime:
+        type: string
+        format: "YYYY-MM-DDTHH:II:SSZ"
+        example: "2018-01-12T13:49:36Z"
+      enable:
+        type: string
+        enum: ['N', 'Y']
+      sort:
+        type: integer
+        description: "정렬 코드, descending order"
+  feeInfo:
+    properties:
+      maker:
+        type: number
+        description: "지정가"
+      taker:
+        type: number
+        description: "시장가"
+
+parameters:
+
+responses:
+  400:
+    description: "요청 오류 - 패러미터 오류/코인 없음/기타"
+    schema:
+      type: object
+      properties:
+        header:
+          $ref: '#/definitions/ApiResponse'
+  401:
+    description: "미로그인"
+    schema:
+      type: object
+      properties:
+        header:
+          $ref: '#/definitions/ApiResponse'
+  403:
+    description: "권한 없음"
+    schema:
+      type: object
+      properties:
+        header:
+          $ref: '#/definitions/ApiResponse'
+  404:
+    description: "항목 없음"
+    schema:
+      type: object
+      properties:
+        header:
+          $ref: '#/definitions/ApiResponse'
+  404-user:
+    description: "(사용자)항목 없음"
+    schema:
+      type: object
+      properties:
+        header:
+          $ref: '#/definitions/ApiResponse'
+  500:
+    description: "Other Exceptions"
+    schema:
+      type: object
+      properties:
+        header:
+          $ref: '#/definitions/ApiResponse'

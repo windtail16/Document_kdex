@@ -1,0 +1,313 @@
+swagger: '2.0'
+info:
+  version: 1.0.0
+  title: DEXKO 거래 서버 내부 API
+  description: "WAS와 통신하는 내부 거래서버입니다."
+  contact:
+    email: sungjun@kdex.kr
+
+schemes:
+ - http
+ - https
+host: trade.dexko.internal
+basePath: /
+
+securityDefinitions:
+  UserSessionAuth:
+    type: apiKey
+    in: header
+    name: session
+  AdminSessionAuth:
+    type: apiKey
+    in: header
+    name: session
+
+tags:
+- name: Trade
+- name: Server
+
+paths:
+  /trade/order:
+    post:
+      tags:
+      - Trade
+      summary: "주문하기"
+      description: "
+      ErrorCode : 
+      - 4001 : MKIDX 잘못됨
+      - 4002 : OC_TYPE 잘못됨
+      - 4003 : OC_CALL_TYPE 잘못됨
+      - 4004 : OC_PRICE 잘못됨
+      - 4005 : OC_TAMOUNT 잘못됨
+      - 4010 : 비로그인 에러
+      - 4070 : 시장가 거래에서 시스템에 걸려있는 총수량 보다 많은 거래를 하려함.
+      - 4080 : 시장가 거래에서 최소 수량 보다 적게 거래를 하려함.
+      - 4090 : 지정가 거래 호가단위 에러.
+      - 20011 : 구매 지갑(WALLET)에 금액이 없습니다.
+      - 20012 : 구매 주문금액이 사용가능금액 보다 큽니다.
+      - 20021 : 판매 지갑(WALLET)에 금액이 없습니다.
+      - 20022 : 판매 주문금액이 사용가능금액 보다 큽니다.
+      - 20031 : 매수 최대주문가격 이상으로 주문하였습니다.
+      - 20032 : 매도 최소주문가격 이하로 주문하였습니다.
+      - 5000 : 시스템 에러 < 유저 없음 등 발생하면 안되는 에러 >
+      "
+      security:
+      - UserSessionAuth: []
+      consumes:
+        - application/json
+      parameters:
+        - in: "body"
+          name: "body"
+          description: ""
+          required: true
+          schema:
+            $ref: "#/definitions/TradePostRequest"
+      produces:
+        - application/json
+      responses:
+        200:
+          description: "OK"
+          schema:
+            type: object
+            properties:
+              header:
+                $ref: '#/definitions/ApiResponse'
+        400:
+          $ref: '#/responses/400'
+        404:
+          $ref: '#/responses/404'
+        500:
+          $ref: '#/responses/500'
+    delete:
+      tags:
+      - Trade
+      summary: "주문취소"
+      security:
+      - UserSessionAuth: []
+      description: "
+      ErrorCode : 
+      - 4001 : MKIDX 잘못됨
+      - 4006 : OCIDX 잘못됨
+      - 5000 : 시스템 에러 < 유저 없음 등 발생하면 안되는 에러 >
+      "
+      consumes:
+        - application/json
+      parameters:
+        - in: "body"
+          name: "body"
+          description: ""
+          required: true
+          schema:
+            $ref: "#/definitions/TradeDeleteRequest"
+      produces:
+        - application/json
+      responses:
+        204:
+          description: "OK"
+          schema:
+            type: object
+            properties:
+              header:
+                $ref: '#/definitions/ApiResponse'
+        400:
+          $ref: '#/responses/400'
+        404:
+          $ref: '#/responses/404'
+        500:
+          $ref: '#/responses/500'
+  /trade/admin/order:
+    delete:
+      tags:
+      - Trade
+      summary: "관리자 주문취소"
+      security:
+      - AdminSessionAuth: []
+      description: "
+      ErrorCode : 
+      - 4001 : MKIDX 잘못됨
+      - 4006 : OCIDX 잘못됨
+      - 5000 : 시스템 에러 < 유저 없음 등 발생하면 안되는 에러 >
+      "
+      consumes:
+        - application/json
+      parameters:
+        - in: "body"
+          name: "body"
+          description: ""
+          required: true
+          schema:
+            $ref: "#/definitions/TradeDeleteRequest"
+      produces:
+        - application/json
+      responses:
+        204:
+          description: "OK"
+          schema:
+            type: object
+            properties:
+              header:
+                $ref: '#/definitions/ApiResponse'
+        400:
+          $ref: '#/responses/400'
+        404:
+          $ref: '#/responses/404'
+        500:
+          $ref: '#/responses/500'
+  /trade/server/market_reset:
+    get:
+      tags:
+        - Server
+      summary: "서버의 마켓정보 리셋"
+      security:
+      - AdminSessionAuth: []
+      consumes:
+      - application/json
+      responses:
+        200:
+          description: "OK"
+          schema:
+            type: object
+            properties:
+              header:
+                $ref: '#/definitions/ApiResponse'
+        400:
+          $ref: '#/responses/400'
+        403:
+          $ref: '#/responses/403'
+        404:
+          $ref: '#/responses/404'
+        500:
+          $ref: '#/responses/500'
+  /trade/server/status:
+    get:
+      tags:
+        - Server
+      summary: "서버정보 확인"
+      security:
+      - AdminSessionAuth: []
+      produces:
+        - application/json
+      responses:
+        200:
+          description: "OK"
+          schema:
+            type: object
+            properties:
+              result:
+                $ref: '#/definitions/ServerStatusResponse'
+              header:
+                $ref: '#/definitions/ApiResponse'
+        400:
+          $ref: '#/responses/400'
+        403:
+          $ref: '#/responses/403'
+        404:
+          $ref: '#/responses/404'
+        500:
+          $ref: '#/responses/500'
+
+definitions:
+  TradePostRequest:
+    type: object
+    properties:
+      MKIDX:
+        type: number
+      MIDX:
+        type: number
+      OC_TYPE:
+        type: string
+        enum: ['B','S']
+        required: true
+        description: 구매/판매 구분
+      OC_CALL_TYPE:
+        type: string
+        enum: ['N', 'M']
+        required: true
+        description: N 기본, M 시장가
+      OC_PRICE:
+        type: number
+        format: double
+        description: 가격
+      OC_TAMOUNT:
+        type: number
+        format: double
+        description: 구매 갯수
+  TradeDeleteRequest:
+    type: object
+    properties:
+      MKIDX:
+        type: integer
+        required: true
+      MIDX:
+        type: integer
+        required: true
+      OCIDX:
+        type: array
+        required: true
+        items:
+          type: integer
+  ServerStatusResponse:
+    type: object
+    properties:
+      DB:
+        type: object
+        properties:
+          connectionsInUse:
+            type: integer
+          connectionsOpen:
+            type: integer
+          poolMin:
+            type: integer
+          poolMax:
+            type: integer
+  ApiResponse:
+    type: object
+    properties:
+      code:
+        type: integer
+      requestTime:
+        type: string
+        format: "YYYY-MM-DDTHH:II:SSZ"
+        example: "2018-01-12T13:49:36Z"
+        description: "YYYY-MM-DDTHH:II:SSZ"
+      responseTime:
+        type: string
+        format: "YYYY-MM-DDTHH:II:SSZ"
+        example: "2018-01-12T13:49:36Z"
+        description: "rfc3339: https://tools.ietf.org/html/rfc3339"
+
+parameters:
+
+responses:
+  400:
+    description: "요청 오류 - 패러미터 오류/코인 없음/기타"
+    schema:
+      type: object
+      properties:
+        header:
+          $ref: '#/definitions/ApiResponse'
+  403:
+    description: "권한 없음"
+    schema:
+      type: object
+      properties:
+        header:
+          $ref: '#/definitions/ApiResponse'
+  404:
+    description: "항목 없음"
+    schema:
+      type: object
+      properties:
+        header:
+          $ref: '#/definitions/ApiResponse'
+  500:
+    description: "Other Exceptions"
+    schema:
+      type: object
+      properties:
+        header:
+          $ref: '#/definitions/ApiResponse'
+
+externalDocs:
+  description: Find out more about Swagger
+  url: http://swagger.io

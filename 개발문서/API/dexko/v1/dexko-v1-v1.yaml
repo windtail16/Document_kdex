@@ -1,0 +1,4309 @@
+swagger: '2.0'
+info:
+  version: 1.0.0
+  title: DEXKO V1 SERVER API
+  description: An API For DEXKO Front-Service
+  contact:
+    email: jhkim@kdex.kr
+
+externalDocs:
+  description: Find out more about Swagger
+  url: http://swagger.io
+
+schemes:
+- https
+host: api.v1.dexko.co.kr
+basePath: /v1
+
+tags:
+- name: Privacy
+- name: User
+- name: Auth
+- name: Coin
+- name: Market
+- name: Wallet
+- name: Transfer
+- name: Price
+- name: Order
+- name: Address
+- name: Center
+- name: CS
+- name: Board
+- name: Chart
+- name: Tick
+- name: Html
+- name: Asset
+- name: Notification
+- name: Config
+- name: Summary
+  description: "Result of API combination - optional"
+
+paths:
+  /privacy/{field}:
+    post:
+      tags:
+      - Privacy
+      summary: "로그인한 사용자의 개인 정보 요청"
+      description: "
+        field\n
+        ------\n
+        - email: 이메일\n
+        - phone: 휴대폰 번호\n
+        - gender: 성별(M, F)\n
+        - realname: 실명\n
+        - birthday: 생년월일\n
+      "
+      parameters:
+      - name: field
+        in: path
+        type: string
+        required: true
+      produces:
+      - application/json
+      responses:
+        200:
+          description: "OK"
+          schema:
+            type: object
+            properties:
+              header:
+                $ref: '#/definitions/ApiResponse'
+              result:
+                $ref: '#/definitions/privacyInfo'
+        400:
+          $ref: '#/responses/400'
+        401:
+          $ref: '#/responses/401'
+        500:
+          $ref: '#/responses/500'
+  /privacy/account:
+    post:
+      tags:
+      - Privacy
+      summary: "로그인한 사용자의 실계좌 정보 요청"
+      produces:
+      - application/json
+      responses:
+        200:
+          description: "OK"
+          schema:
+            type: object
+            properties:
+              header:
+                $ref: '#/definitions/ApiResponse'
+              result:
+                $ref: '#/definitions/accountInfo'
+        400:
+          $ref: '#/responses/400'
+        401:
+          $ref: '#/responses/401'
+        500:
+          $ref: '#/responses/500'
+  /privacy/virtual-account:
+    post:
+      tags:
+      - Privacy
+      summary: "로그인한 사용자의 가상계좌 정보 요청"
+      produces:
+      - application/json
+      responses:
+        200:
+          description: "OK"
+          schema:
+            type: object
+            properties:
+              header:
+                $ref: '#/definitions/ApiResponse'
+              result:
+                $ref: '#/definitions/accountInfo'
+        400:
+          $ref: '#/responses/400'
+        401:
+          $ref: '#/responses/401'
+        500:
+          $ref: '#/responses/500'
+
+  /me:
+    get:
+      tags:
+      - User
+      summary: "로그인 사용자 정보"
+      description: "로그인한 사용자 정보 가져오기"
+      produces:
+      - application/json
+      responses:
+        200:
+          description: "OK"
+          schema:
+            type: object
+            properties:
+              header:
+                $ref: '#/definitions/ApiResponse'
+              result:
+                $ref: '#/definitions/memberInfo'
+        404:
+          $ref: '#/responses/404-user'
+        500:
+          $ref: '#/responses/500'
+    put:
+      tags:
+      - User
+      summary: "사용자 정보 수정"
+      description: "
+        Case1. 비밀번호 수정, Case2. 마케팅 이메일 수신 동의, Case3. 마케팅 SMS 수신 동의
+        \n
+        **프론트에서 서버 API 요청시 각 케이스별로 나눠서 요청 가능**
+        \n
+        - oldPassword와 newPassword 값이 있을 경우 비밀번호 변경 처리\n
+        - agreeEmail 값이 있을 경우 마케팅 이메일 수신 동의 처리\n
+        - agreeSms 값이 있을 경우 마케팅 SMS 수신 동의 처리
+      "
+      consumes:
+      - application/x-www-form-urlencoded
+      parameters:
+      - name: oldPassword
+        in: formData
+        type: string
+      - name: newPassword
+        in: formData
+        type: string
+      - name: agreeEmail
+        in: formData
+        type: string
+        enum: ['N', 'Y']
+      - name: agreeSms
+        in: formData
+        type: string
+        enum: ['N', 'Y']
+      produces:
+      - application/json
+      responses:
+        200:
+          description: "OK"
+          schema:
+            type: object
+            properties:
+              header:
+                $ref: '#/definitions/ApiResponse'
+              result:
+                $ref: '#/definitions/memberInfo'
+        400:
+          $ref: '#/responses/400'
+        401:
+          $ref: '#/responses/401'
+        404:
+          $ref: '#/responses/404-user'
+        500:
+          $ref: '#/responses/500'
+      deprecated: true
+  /me/update:
+    post:
+      tags:
+      - User
+      summary: "사용자 정보 수정"
+      description: "
+        Case1. 비밀번호 수정, Case2. 마케팅 이메일 수신 동의, Case3. 마케팅 SMS 수신 동의
+        \n
+        **프론트에서 서버 API 요청시 각 케이스별로 나눠서 요청 가능**
+        \n
+        - oldPassword와 newPassword 값이 있을 경우 비밀번호 변경 처리\n
+        - agreeEmail 값이 있을 경우 마케팅 이메일 수신 동의 처리\n
+        - agreeSms 값이 있을 경우 마케팅 SMS 수신 동의 처리
+      "
+      consumes:
+      - application/x-www-form-urlencoded
+      parameters:
+      - name: oldPassword
+        in: formData
+        type: string
+      - name: newPassword
+        in: formData
+        type: string
+      - name: agreeEmail
+        in: formData
+        type: string
+        enum: ['N', 'Y']
+      - name: agreeSms
+        in: formData
+        type: string
+        enum: ['N', 'Y']
+      produces:
+      - application/json
+      responses:
+        200:
+          description: "OK"
+          schema:
+            type: object
+            properties:
+              header:
+                $ref: '#/definitions/ApiResponse'
+              result:
+                $ref: '#/definitions/memberInfo'
+        400:
+          $ref: '#/responses/400'
+        401:
+          $ref: '#/responses/401'
+        404:
+          $ref: '#/responses/404-user'
+        500:
+          $ref: '#/responses/500'
+    delete:
+      tags:
+      - User
+      summary: "탈퇴하기"
+      consumes:
+      - application/x-www-form-urlencoded
+      parameters:
+      - name: reason
+        in: formData
+        type: string
+      produces:
+      - application/json
+      responses:
+        204:
+          description: "OK"
+          # schema:
+          #   type: object
+          #   properties:
+          #     header:
+          #       $ref: '#/definitions/ApiResponse'
+        400:
+          $ref: '#/responses/400'
+        401:
+          $ref: '#/responses/401'
+        404:
+          $ref: '#/responses/404-user'
+        500:
+          $ref: '#/responses/500'
+      deprecated: true
+  /me/delete:
+    post:
+      tags:
+      - User
+      summary: "탈퇴하기"
+      consumes:
+      - application/x-www-form-urlencoded
+      parameters:
+      - name: reason
+        in: formData
+        type: string
+      produces:
+      - application/json
+      responses:
+        204:
+          description: "OK"
+          # schema:
+          #   type: object
+          #   properties:
+          #     header:
+          #       $ref: '#/definitions/ApiResponse'
+        400:
+          $ref: '#/responses/400'
+        401:
+          $ref: '#/responses/401'
+        404:
+          $ref: '#/responses/404-user'
+        500:
+          $ref: '#/responses/500'
+  /me/connections:
+    get:
+      tags:
+      - User
+      summary: "접속 정보"
+      parameters:
+      - name: page
+        in: query
+        type: integer
+        default: 1
+      - name: count
+        in: query
+        type: integer
+        default: 10
+      - name: startDate
+        in: query
+        type: string
+        format: "YYYY-MM-DDTHH:II:SSZ"
+        #example: "2018-01-12T13:49:36Z"
+        description: "YYYY-MM-DDTHH:II:SSZ (rfc3339: https://tools.ietf.org/html/rfc3339)"
+      - name: endDate
+        in: query
+        type: string
+        format: "YYYY-MM-DDTHH:II:SSZ"
+        #example: "2018-01-12T13:49:36Z"
+        description: "YYYY-MM-DDTHH:II:SSZ"
+      produces:
+      - application/json
+      responses:
+        200:
+          description: "OK"
+          schema:
+            type: object
+            properties:
+              header:
+                $ref: '#/definitions/ApiResponse'
+              result:
+                $ref: '#/definitions/loginHistoryInfo'
+              meta:
+                type: object
+                properties:
+                  pagination:
+                    $ref: '#/definitions/paginator'
+        400:
+          $ref: '#/responses/400'
+        401:
+          $ref: '#/responses/401'
+        500:
+          $ref: '#/responses/500'
+  /me/renew-password:
+    post:
+      tags:
+      - User
+      summary: "비밀번호 변경 시각 갱신"
+      description: "
+        로그인 세션 사용자의 비밀번호 갱신 시각 갱신
+      "
+      produces:
+      - application/json
+      responses:
+        201:
+          description: "OK"
+          schema:
+            type: object
+            properties:
+              header:
+                $ref: '#/definitions/ApiResponse'
+        401:
+          $ref: '#/responses/401'
+        500:
+          $ref: '#/responses/500'
+
+  /users:
+    post:
+      tags:
+      - User
+      summary: "회원가입"
+      consumes:
+      - application/x-www-form-urlencoded
+      parameters:
+      - name: email
+        in: formData
+        type: string
+        required: true
+      - name: password
+        in: formData
+        type: string
+        required: true
+      produces:
+      - application/json
+      responses:
+        201:
+          description: "
+            ---
+            **400** 응답에 대한 세부 코드(header.code)
+            - 11000 : reCapcha 인증 오류
+            - 21000 : 회원 이메일 중복
+          "
+          schema:
+            type: object
+            properties:
+              header:
+                $ref: '#/definitions/ApiResponse'
+              result:
+                $ref: '#/definitions/memberInfo'
+        400:
+          $ref: '#/responses/400'
+        500:
+          $ref: '#/responses/500'
+
+  /login:
+    post:
+      tags:
+      - Auth
+      summary: "로그인"
+      description: "
+        로그인
+        ---
+        **400** 응답에 대한 세부 코드(header.code)
+        - 4001: 인증 정보 불일치
+        - 4011: 잠김 사용자
+        - 4012: 휴면 계정
+        - 4021: 6개월 이상 비밀번호 변경하지 않은 사용자
+        - 11000 : reCapcha 인증 오류
+      "
+      consumes:
+      - application/x-www-form-urlencoded
+      parameters:
+      - name: email
+        in: formData
+        type: string
+        required: true
+      - name: password
+        in: formData
+        type: string
+        required: true
+      produces:
+      - application/json
+      responses:
+        200:
+          description: "2차 인증 필요"
+          schema:
+            type: object
+            properties:
+              header:
+                $ref: '#/definitions/ApiResponse'
+              result:
+                $ref: '#/definitions/loginTempResponse'
+        201:
+          description: "LOGGED-IN"
+          schema:
+            type: object
+            properties:
+              header:
+                $ref: '#/definitions/ApiResponse'
+              result:
+                $ref: '#/definitions/memberInfo'
+        400:
+          $ref: '#/responses/400'
+        404:
+          $ref: '#/responses/404-user'
+        500:
+          $ref: '#/responses/500'
+  /login-atm:
+    post:
+      tags:
+      - Auth
+      summary: "로그인-ATM 버전"
+      description: "
+        ATM용 로그인
+        ---
+        **400** 응답에 대한 세부 코드(header.code)
+        - 4001: 인증 정보 불일치
+        - 4011: 잠김 사용자
+        - 4012: 휴면 계정
+        - 4021: 6개월 이상 비밀번호 변경하지 않은 사용자
+      "
+      consumes:
+      - application/x-www-form-urlencoded
+      parameters:
+      - name: email
+        in: formData
+        type: string
+        required: true
+      - name: password
+        in: formData
+        type: string
+        required: true
+      produces:
+      - application/json
+      responses:
+        200:
+          description: "2차 인증 필요"
+          schema:
+            type: object
+            properties:
+              header:
+                $ref: '#/definitions/ApiResponse'
+              result:
+                $ref: '#/definitions/loginTempResponse'
+        201:
+          description: "LOGGED-IN"
+          schema:
+            type: object
+            properties:
+              header:
+                $ref: '#/definitions/ApiResponse'
+              result:
+                $ref: '#/definitions/memberInfo'
+        400:
+          $ref: '#/responses/400'
+        404:
+          $ref: '#/responses/404-user'
+        500:
+          $ref: '#/responses/500'
+  /login/step/2:
+    get:
+      tags:
+      - Auth
+      summary: "2차 인증 요청"
+      description: "
+        2차 인증 요청
+        ---
+        - SMS: SMS 인증 번호 전송
+      "
+      consumes:
+      - application/x-www-form-urlencoded
+      parameters:
+      - name: token
+        in: query
+        type: string
+        required: true
+      - name: means
+        in: query
+        type: string
+        enum: ['SMS']
+        required: true
+      produces:
+      - application/json
+      responses:
+        200:
+          description: "OK"
+          schema:
+            type: object
+            properties:
+              header:
+                $ref: '#/definitions/ApiResponse'
+        400:
+          $ref: '#/responses/400'
+        500:
+          $ref: '#/responses/500'
+    post:
+      tags:
+      - Auth
+      summary: "2차 인증 로그인"
+      description: "
+        실명인증/OTP 인증 사용자는 2차 인증을 통해 로그인 완료
+        ---
+        - 1차 로그인 통해 최소한의 정보 (session.login) 저장
+        - 1차 로그인 통해 사용 가능한 인증 수단 전달
+        - 2차 인증 통해 로그인 완료
+
+        Parameters
+        - means: enum('SMS'|'OTP')
+        - auth: SMS 전송 키 | OTP 번호
+      "
+      consumes:
+      - application/x-www-form-urlencoded
+      parameters:
+      - name: token
+        in: formData
+        type: string
+        required: true
+      - name: means
+        in: formData
+        type: string
+        enum: ['SMS', 'OTP']
+        required: true
+      - name: authvalue
+        in: formData
+        type: string
+        required: true
+      produces:
+      - application/json
+      responses:
+        201:
+          description: "LOGGED-IN"
+          schema:
+            type: object
+            properties:
+              header:
+                $ref: '#/definitions/ApiResponse'
+              result:
+                $ref: '#/definitions/memberInfo'
+        400:
+          $ref: '#/responses/400'
+        404:
+          $ref: '#/responses/404-user'
+        500:
+          $ref: '#/responses/500'
+  /logout:
+    get:
+      tags:
+      - Auth
+      summary: "로그아웃"
+      description: "로그아웃 처리"
+      responses:
+        204:
+          description: "LOGGED-OUT"
+          # schema:
+          #   type: object
+          #   properties:
+          #     header:
+          #       $ref: '#/definitions/ApiResponse'
+        500:
+          $ref: '#/responses/500'
+
+  /auth:
+    get:
+      tags:
+      - Auth
+      summary: "단계별 인증받은 정보 받아오기"
+      produces:
+      - application/json
+      responses:
+        200:
+          description: "OK"
+          schema:
+            type: object
+            properties:
+              header:
+                $ref: '#/definitions/ApiResponse'
+              result:
+                type: array
+                items:
+                  $ref: '#/definitions/authStepInfo'
+        401:
+          $ref: '#/responses/401'
+        404:
+          $ref: '#/responses/404-user'
+        500:
+          $ref: '#/responses/500'
+      deprecated: true
+  /auth/{email}:
+    get:
+      tags:
+      - Auth
+      summary: "E-MAIL로 가입 정보 확인"
+      parameters:
+      - name: email
+        in: path
+        type: string
+        required: true
+      produces:
+      - application/json
+      responses:
+        200:
+          description: "OK"
+          schema:
+            type: object
+            properties:
+              header:
+                $ref: '#/definitions/ApiResponse'
+              result:
+                $ref: '#/definitions/authInfo'
+        400:
+          $ref: '#/responses/400'
+        404:
+          $ref: '#/responses/404-user'
+        500:
+          $ref: '#/responses/500'
+  /auth/reset-password:
+    post:
+      tags:
+      - Auth
+      summary: "비밀번호 재설정 E-MAIL 전송"
+      description: "
+        재설정 이메일에 포함되는 링크 형식\n
+        - 사전가입용: https://auth.dexko.co.kr/?code={code}&via=repd
+        - 개발용: https://dev.dexko.co.kr/?code={code}&via=repd
+        - 실서비스용: https://dexko.co.kr/?code={code}&via=repd
+      "
+      consumes:
+      - application/x-www-form-urlencoded
+      parameters:
+      - name: email
+        in: formData
+        type: string
+        required: true
+      produces:
+      - application/json
+      responses:
+        201:
+          description: "비밀번호 재설정 E-MAIL 전송 성공"
+          schema:
+            type: object
+            properties:
+              header:
+                $ref: '#/definitions/ApiResponse'
+        400:
+          $ref: '#/responses/400'
+        404:
+          $ref: '#/responses/404-user'
+        500:
+          $ref: '#/responses/500'
+    put:
+      tags:
+      - Auth
+      summary: "비밀번호 재설정"
+      consumes:
+      - application/x-www-form-urlencoded
+      parameters:
+      - name: email
+        in: formData
+        type: string
+        required: true
+      - name: code
+        in: formData
+        type: string
+        required: true
+      - name: password
+        in: formData
+        type: string
+        required: true
+      produces:
+      - application/json
+      responses:
+        200:
+          description: "비밀번호 재설정 완료"
+          schema:
+            type: object
+            properties:
+              header:
+                $ref: '#/definitions/ApiResponse'
+        400:
+          $ref: '#/responses/400'
+        403:
+          $ref: '#/responses/403'
+          #description: "인증 링크 부적합"
+        404:
+          $ref: '#/responses/404-user'
+        500:
+          $ref: '#/responses/500'
+      deprecated: true
+  /auth/reset-password/do:
+    post:
+      tags:
+      - Auth
+      summary: "비밀번호 재설정"
+      description: "
+        미로그인 사용자의 비밀번호 변경
+        ---
+        1. code 값 전달될 경우, 해당 code를 이용하여 사용자 식별 후 비밀번호 변경
+        2. 그 외에는 HTTP:400 리턴
+      "
+      consumes:
+      - application/x-www-form-urlencoded
+      parameters:
+      - name: code
+        in: formData
+        type: string
+        required: false
+      - name: password
+        in: formData
+        type: string
+        required: true
+      produces:
+      - application/json
+      responses:
+        200:
+          description: "비밀번호 재설정 완료"
+          schema:
+            type: object
+            properties:
+              header:
+                $ref: '#/definitions/ApiResponse'
+        400:
+          $ref: '#/responses/400'
+        403:
+          $ref: '#/responses/403'
+          #description: "인증 링크 부적합"
+        404:
+          $ref: '#/responses/404-user'
+        500:
+          $ref: '#/responses/500'
+  /auth/email/send:
+    post:
+      tags:
+      - Auth
+      summary: "E-MAIL 전송"
+      consumes:
+      - application/x-www-form-urlencoded
+      parameters:
+      - name: address
+        in: query
+        type: string
+        required: true
+      produces:
+      - application/json
+      responses:
+        201:
+          description: "E-MAIL 전송"
+          schema:
+            type: object
+            properties:
+              header:
+                $ref: '#/definitions/ApiResponse'
+        401:
+          $ref: '#/responses/401'
+        404:
+          $ref: '#/responses/404-user'
+        500:
+          $ref: '#/responses/500'
+  /auth/email/confirm:
+    get:
+      tags:
+      - Auth
+      summary: "E-MAIL 승인"
+      parameters:
+      - name: key
+        in: query
+        type: string
+        required: true
+      produces:
+      - application/json
+      responses:
+        302:
+          description: "승인완료 & REDIRECT, location header required"
+  /auth/sms:
+    get:
+      tags:
+      - Auth
+      summary: "SMS 전송 - 미인증 사용자용"
+      parameters:
+      - name: phoneNo
+        in: query
+        type: string
+        required: true
+      produces:
+      - application/json
+      responses:
+        200:
+          description: "SMS 전송"
+          schema:
+            type: object
+            properties:
+              header:
+                $ref: '#/definitions/ApiResponse'
+              result:
+                $ref: '#/definitions/smsValidatorResponse'
+        400:
+          $ref: '#/responses/400'
+        500:
+          $ref: '#/responses/500'
+      deprecated: true
+    post:
+      tags:
+      - Auth
+      summary: "SMS 검증 - 미인증 사용자용"
+      consumes:
+      - application/x-www-form-urlencoded
+      parameters:
+      - name: requestCode
+        in: formData
+        type: integer
+        required: true
+      - name: authNumber
+        in: formData
+        type: string
+        required: true
+        description: "사용자가 SMS로 전송받은 코드"
+      produces:
+      - application/json
+      responses:
+        200:
+          description: "OK"
+          schema:
+            type: object
+            properties:
+              header:
+                $ref: '#/definitions/ApiResponse'
+        400:
+          $ref: '#/responses/400'
+        500:
+          $ref: '#/responses/500'
+      deprecated: true
+  /auth/sms/validators:
+    get:
+      tags:
+      - Auth
+      summary: "인증 SMS 전송 - 본인인증받은 사용자"
+      produces:
+      - application/json
+      responses:
+        200:
+          description: "OK"
+          schema:
+            type: object
+            properties:
+              header:
+                $ref: '#/definitions/ApiResponse'
+              result:
+                $ref: '#/definitions/smsValidatorResponse'
+        400:
+          $ref: '#/responses/400'
+        401:
+          $ref: '#/responses/401'
+        403:
+          $ref: '#/responses/403'
+          #description: "본인 미인증"
+        500:
+          $ref: '#/responses/500'
+    post:
+      tags:
+      - Auth
+      summary: "인증 SMS 검증 - 본인인증받은 사용자"
+      consumes:
+      - application/x-www-form-urlencoded
+      parameters:
+      - name: requestCode
+        in: formData
+        type: integer
+        required: true
+      - name: authNumber
+        in: formData
+        type: string
+        required: true
+        description: "사용자가 SMS로 전송받은 코드"
+      produces:
+      - application/json
+      responses:
+        200:
+          description: "OK"
+          schema:
+            type: object
+            properties:
+              header:
+                $ref: '#/definitions/ApiResponse'
+        400:
+          $ref: '#/responses/400'
+        401:
+          $ref: '#/responses/401'
+        403:
+          $ref: '#/responses/403'
+          #description: "본인 미인증"
+        500:
+          $ref: '#/responses/500'
+  /auth/otp/qr:
+    post:
+      tags:
+      - Auth
+      summary: "OTP 등록을 위한 QR 받아오기"
+      consumes:
+      - application/x-www-form-urlencoded
+      parameters:
+      - name: recoveryCode
+        in: formData
+        type: string
+        required: false
+        description: "기존 OTP 재등록을 위한 비밀키"
+      produces:
+      - application/json
+      responses:
+        200:
+          description: "QR 반환"
+          schema:
+            type: object
+            properties:
+              header:
+                $ref: '#/definitions/ApiResponse'
+              result:
+                type: object
+                properties:
+                  qr:
+                    type: string
+                    format: "base64"
+                    description: "base64 encoded image"
+                  recoveryCode:
+                    type: string
+        401:
+          $ref: '#/responses/401'
+        404:
+          $ref: '#/responses/404'
+        500:
+          $ref: '#/responses/500'
+  /auth/otp:
+    post:
+      tags:
+      - Auth
+      summary: "OTP 등록"
+      consumes:
+      - application/x-www-form-urlencoded
+      parameters:
+      - name: secret
+        in: formData
+        type: string
+        required: true
+        description: "비밀키"
+      - name: authNumber
+        in: formData
+        type: string
+        required: true
+        description: "OTP 생성 번호"
+      produces:
+      - application/json
+      responses:
+        201:
+          description: "REGISTERED"
+          schema:
+            type: object
+            properties:
+              header:
+                $ref: '#/definitions/ApiResponse'
+        400:
+          $ref: '#/responses/400'
+        401:
+          $ref: '#/responses/401'
+        500:
+          $ref: '#/responses/500'
+    delete:
+      tags:
+      - Auth
+      summary: "OTP 해지"
+      consumes:
+      - application/x-www-form-urlencoded
+      parameters:
+      - name: authNumber
+        in: formData
+        type: string
+        required: true
+        description: "OTP 생성 번호"
+      produces:
+      - application/json
+      responses:
+        204:
+          description: "해지"
+          # schema:
+          #   type: object
+          #   properties:
+          #     header:
+          #       $ref: '#/definitions/ApiResponse'
+        401:
+          $ref: '#/responses/401'
+        403:
+          $ref: '#/responses/403'
+        500:
+          $ref: '#/responses/500'
+      deprecated: true
+  /auth/otp/delete:
+    post:
+      tags:
+      - Auth
+      summary: "OTP 해지"
+      consumes:
+      - application/x-www-form-urlencoded
+      parameters:
+      - name: authNumber
+        in: formData
+        type: string
+        required: true
+        description: "OTP 생성 번호"
+      produces:
+      - application/json
+      responses:
+        204:
+          description: "해지"
+          # schema:
+          #   type: object
+          #   properties:
+          #     header:
+          #       $ref: '#/definitions/ApiResponse'
+        401:
+          $ref: '#/responses/401'
+        403:
+          $ref: '#/responses/403'
+        500:
+          $ref: '#/responses/500'
+  /auth/otp/validators:
+    post:
+      tags:
+      - Auth
+      summary: "OTP 생성 번호 검증"
+      consumes:
+      - application/x-www-form-urlencoded
+      parameters:
+      - name: authNumber
+        in: formData
+        type: string
+        required: true
+        description: "OTP 생성 번호"
+      produces:
+      - application/json
+      responses:
+        200:
+          description: "OK"
+          schema:
+            type: object
+            properties:
+              header:
+                $ref: '#/definitions/ApiResponse'
+        400:
+          $ref: '#/responses/400'
+        500:
+          $ref: '#/responses/500'
+  /auth/realname:
+    get:
+      tags:
+      - Auth
+      summary: "실명인증 요청 - 프런트단과 연동 논의 필요"
+      description: "
+        실명인증 여부 확인 후,\n
+        - 인증받았으면 인증받은 결과를\n
+        - 그렇지 않으면 인증 팝업(NICE)을 띄움.
+      "
+      produces:
+      - application/json
+      responses:
+        200:
+          description: "OK"
+          schema:
+            type: object
+            properties:
+              header:
+                $ref: '#/definitions/ApiResponse'
+              result:
+                $ref: '#/definitions/niceInfo'
+        401:
+          $ref: '#/responses/401'
+        500:
+          $ref: '#/responses/500'
+  /auth/realnameView:
+    get:
+      tags:
+      - Auth
+      summary: "실명인증 요청 View"
+      description: "
+        실명인증 View page,\n
+        - 인증 팝업(NICE)을 띄움.
+      "
+      responses:
+        200:
+          description: "OK"
+  /auth/realnameComplete:
+    get:
+      tags:
+      - Auth
+      summary: "실명인증 여부 확인"
+      description: "
+        실명인증 여부 확인 후,\n
+      "
+      produces:
+      - application/json
+      responses:
+        200:
+          description: "OK"
+          schema:
+            type: object
+            properties:
+              header:
+                $ref: '#/definitions/ApiResponse'
+              result:
+                $ref: '#/definitions/logAuthInfo'
+        401:
+          $ref: '#/responses/401'
+        500:
+          $ref: '#/responses/500'
+  /auth/residences:
+    get:
+      tags:
+      - Auth
+      summary: "거주지 증명 신청 상태 조회"
+      description: "
+        - http status code 404: 신청 이력 없음
+        - R: 신청중
+        - J: reJected
+        - E: 처리 완료
+      "
+      produces:
+      - application/json
+      responses:
+        200:
+          description: "OK"
+          schema:
+            type: object
+            properties:
+              header:
+                $ref: '#/definitions/ApiResponse'
+              result:
+                type: string
+        401:
+          $ref: '#/responses/401'
+        404:
+          $ref: '#/responses/404'
+        500:
+          $ref: '#/responses/500'
+    post:
+      tags:
+      - Auth
+      summary: "거주지 증명 신청 (재신청 포함)"
+      description: "
+        header.code
+        ---
+        - 4102: 파일 형식에 문제가 있습니다.
+        - 4109: 거주지 증명 신청이 완료된 사용자입니다.
+        \n
+        기존 신청 내역이 없거나, 기존 신청 내역의 처리결과가 E(nd)가 아닌 경우,
+        사용자에 의한 증명 재신청 가능
+      "
+      consumes:
+      - multipart/form-data
+      parameters:
+      - in: formData
+        name: upfile1
+        type: file
+        required: true
+      - in: formData
+        name: upfile2
+        type: file
+        required: true
+      - in: formData
+        name: upfile3
+        type: file
+        required: true
+      produces:
+      - application/json
+      responses:
+        201:
+          description: "OK"
+          schema:
+            type: object
+            properties:
+              header:
+                $ref: '#/definitions/ApiResponse'
+        400:
+          $ref: '#/responses/400'
+        401:
+          $ref: '#/responses/401'
+        500:
+          $ref: '#/responses/500'
+  /auth/request-initialize:
+    post:
+      tags:
+      - Auth
+      summary: "휴대폰번호 초기화 신청"
+      description: "
+        개요
+        ---
+        - 2차 인증 도구를 분실하여 로그인할 수 없는 사용자
+        - 인증정보 초기화 요청: 1차 로그인 통해 획득한 토큰, 신분증 사진, 신분증 들고 있는 사진
+        - 관리자 확인 후 이메일로 초기화 링크 전송
+        - 링크 클릭시 사용자는 이메일인증 완료 단계로 전환: 2차 인증 정보 없이 로그인 가능
+
+        ---
+
+        header.code
+        ---
+        - 4201: 현재 로그인되어 있는 사용자입니다.
+        - 4202: 파일 형식에 문제가 있습니다.
+
+        ---
+
+        이메일에 포함되는 초기화 링크
+        ---
+        /auth/confirm-initialize?key={key}: key=MEMBER_PROOF.MP_CODE
+      "
+      consumes:
+      - multipart/form-data
+      parameters:
+      - in: formData
+        name: token
+        type: string
+        required: true
+      - in: formData
+        name: upfile1
+        type: file
+        required: true
+      - in: formData
+        name: upfile2
+        type: file
+        required: true
+      produces:
+      - application/json
+      responses:
+        201:
+          description: "OK"
+          schema:
+            type: object
+            properties:
+              header:
+                $ref: '#/definitions/ApiResponse'
+        400:
+          $ref: '#/responses/400'
+        401:
+          $ref: '#/responses/401'
+        500:
+          $ref: '#/responses/500'
+
+  # /auth/virtual-account:
+  #   get:
+  #     tags:
+  #     - Auth
+
+  /coins:
+    get:
+      tags:
+      - Coin
+      summary: "코인 정보 리스트"
+      description: "현재 서비스 중인 코인 정보 리턴"
+      responses:
+        200:
+          description: "OK"
+          schema:
+            type: object
+            properties:
+              header:
+                $ref: '#/definitions/ApiResponse'
+              result:
+                type: array
+                items:
+                  $ref: '#/definitions/coinInfo'
+        400:
+          $ref: '#/responses/400'
+        500:
+          $ref: '#/responses/500'
+  /coins/{coinId}:
+    get:
+      tags:
+      - Coin
+      summary: "코인 상세"
+      parameters:
+      - name: coinId
+        in: path
+        type: integer
+        required: true
+      produces:
+      - application/json
+      responses:
+        200:
+          description: "OK"
+          schema:
+            type: object
+            properties:
+              header:
+                $ref: '#/definitions/ApiResponse'
+              result:
+                $ref: '#/definitions/coinInfo'
+        400:
+          $ref: '#/responses/400'
+        404:
+          $ref: '#/responses/404'
+        500:
+          $ref: '#/responses/500'
+
+  /markets:
+    get:
+      tags:
+      - Market
+      summary: "현재 서비스 중인 마켓 정보"
+      parameters:
+      - name: baseCoinId
+        in: query
+        type: integer
+      responses:
+        200:
+          description: "OK"
+          schema:
+            type: object
+            properties:
+              header:
+                $ref: '#/definitions/ApiResponse'
+              result:
+                type: array
+                items:
+                  $ref: '#/definitions/marketInfo'
+        400:
+          $ref: '#/responses/400'
+        500:
+          $ref: '#/responses/500'
+  /markets/{marketId}:
+    get:
+      tags:
+      - Market
+      summary: "마켓 상세"
+      parameters:
+      - name: marketId
+        in: path
+        type: integer
+        required: true
+      produces:
+      - application/json
+      responses:
+        200:
+          description: "OK"
+          schema:
+            type: object
+            properties:
+              header:
+                $ref: '#/definitions/ApiResponse'
+              result:
+                $ref: '#/definitions/marketInfo'
+        400:
+          $ref: '#/responses/400'
+        404:
+          $ref: '#/responses/404'
+        500:
+          $ref: '#/responses/500'
+  /markets/keycoin:
+    get:
+      tags:
+      - Market
+      summary: "기축통화-거래가능 코인 리스트"
+      produces:
+      - application/json
+      responses:
+        200:
+          description: "OK"
+          schema:
+            type: object
+            properties:
+              header:
+                $ref: '#/definitions/ApiResponse'
+              result:
+                type: array
+                items:
+                  $ref: '#/definitions/keyCoinInfo'
+        500:
+          $ref: '#/responses/500'
+      deprecated: true
+  /markets/keycoin/{coinId}:
+    get:
+      tags:
+      - Market
+      summary: "기축통화 거래 가능 코인"
+      parameters:
+      - name: coinId
+        in: path
+        type: integer
+        required: true
+      produces:
+      - application/json
+      responses:
+        200:
+          description: "OK"
+          schema:
+            type: object
+            properties:
+              header:
+                $ref: '#/definitions/ApiResponse'
+              result:
+                $ref: '#/definitions/keyCoinInfo'
+        400:
+          $ref: '#/responses/400'
+        404:
+          $ref: '#/responses/404'
+        500:
+          $ref: '#/responses/500'
+      deprecated: true
+
+  /wallets:
+    get:
+      tags:
+      - Wallet
+      summary: "지갑 리스트"
+      description: get logged-in user's wallets
+      parameters:
+      - name: coinId
+        in: query
+        type: string
+        format: "CSV"
+        description: "지갑 검색 by 코인"
+      produces:
+      - application/json
+      responses:
+        200:
+          description: "OK"
+          schema:
+            type: object
+            properties:
+              header:
+                $ref: '#/definitions/ApiResponse'
+              result:
+                type: array
+                items:
+                  $ref: '#/definitions/walletInfo'
+        400:
+          $ref: '#/responses/400'
+        401:
+          $ref: '#/responses/401'
+        500:
+          $ref: '#/responses/500'
+
+  /wallets/coin/{coinId}:
+    get:
+      tags:
+      - Wallet
+      summary: "지갑 상세"
+      parameters:
+      - name: coinId
+        in: path
+        type: integer
+        required: true
+      produces:
+      - application/json
+      responses:
+        200:
+          description: "OK"
+          schema:
+            type: object
+            properties:
+              header:
+                $ref: '#/definitions/ApiResponse'
+              result:
+                $ref: '#/definitions/walletInfo'
+        400:
+          $ref: '#/responses/400'
+        401:
+          $ref: '#/responses/401'
+        403:
+          $ref: '#/responses/403'
+        404:
+          $ref: '#/responses/404'
+        500:
+          $ref: '#/responses/500'
+    post:
+      tags:
+      - Wallet
+      summary: "지갑 생성, 이미 있으면 기존 지갑 반환"
+      parameters:
+      - name: coinId
+        in: path
+        type: integer
+        required: true
+      produces:
+      - application/json
+      responses:
+        200:
+          description: "OK"
+          schema:
+            type: object
+            properties:
+              header:
+                $ref: '#/definitions/ApiResponse'
+              result:
+                $ref: '#/definitions/walletInfo'
+        400:
+          $ref: '#/responses/400'
+        401:
+          $ref: '#/responses/401'
+        500:
+          $ref: '#/responses/500'
+  /wallets/coin/{coinId}/withdrawal-limit:
+    get:
+      tags:
+      - Wallet
+      summary: "암호화폐 잔여한도 조회"
+      parameters:
+      - name: coinId
+        in: path
+        type: integer
+        required: true
+      produces:
+      - application/json
+      responses:
+        200:
+          description: "OK"
+          schema:
+            type: object
+            properties:
+              header:
+                $ref: '#/definitions/ApiResponse'
+              result:
+                $ref: '#/definitions/withdrawalLimit'
+        401:
+          $ref: '#/responses/401'
+        500:
+          $ref: '#/responses/500'
+
+  /transfers/krw:
+    get:
+      tags:
+      - Transfer
+      summary: "원화 입출금 내역"
+      parameters:
+      - name: transferType
+        in: query
+        required: false
+        type: string
+        enum: ['I', 'O']
+        description: "I: 입금, O: 출금"
+      # - name: status
+      #   in: query
+      #   type: string
+      #   enum: ['requested', 'processing', 'confirmed', 'rejected', 'error']
+      - name: fromDate
+        in: query
+        type: string
+        description: "yyyy-mm-ddThh:ii:ssZ"
+      - name: toDate
+        in: query
+        type: string
+        description: "yyyy-mm-ddThh:ii:ssZ"
+      - name: page
+        in: query
+        type: integer
+        default: 1
+      - name: count
+        in: query
+        type: integer
+        description: "미지정일 경우 모든 항목 리턴"
+      produces:
+      - application/json
+      responses:
+        200:
+          description: "OK"
+          schema:
+            type: object
+            properties:
+              header:
+                $ref: '#/definitions/ApiResponse'
+              result:
+                type: array
+                items:
+                  $ref: '#/definitions/krwTransferHistoryInfo'
+              meta:
+                type: object
+                properties:
+                  pagination:
+                    $ref: '#/definitions/paginator'
+        400:
+          $ref: '#/responses/400'
+        401:
+          $ref: '#/responses/401'
+        500:
+          $ref: '#/responses/500'
+  /transfers/krw/{transferId}:
+    get:
+      tags:
+      - Transfer
+      summary: "원화 입출금 상세"
+      parameters:
+      - name: transferId
+        in: path
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        200:
+          description: "OK"
+          schema:
+            type: object
+            properties:
+              header:
+                $ref: '#/definitions/ApiResponse'
+              result:
+                $ref: '#/definitions/krwTransferHistoryInfo'
+        400:
+          $ref: '#/responses/400'
+        401:
+          $ref: '#/responses/401'
+        403:
+          $ref: '#/responses/403'
+        404:
+          $ref: '#/responses/404'
+        500:
+          $ref: '#/responses/500'
+  /transfers:
+    get:
+      tags:
+      - Transfer
+      summary: "암호화폐 입출금 내역"
+      parameters:
+      - name: coinId
+        in: query
+        required: false
+        type: integer
+      - name: transferType
+        in: query
+        required: false
+        type: string
+        enum: ['I', 'O']
+        description: "I: 입금, O: 출금"
+      # - name: status
+      #   in: query
+      #   type: string
+      #   enum: ['requested', 'processing', 'confirmed', 'rejected', 'error']
+      - name: fromDate
+        in: query
+        type: string
+        description: "yyyy-mm-ddThh:ii:ssZ"
+      - name: toDate
+        in: query
+        type: string
+        description: "yyyy-mm-ddThh:ii:ssZ"
+      - name: page
+        in: query
+        type: integer
+        default: 1
+      - name: count
+        in: query
+        type: integer
+        description: "미지정일 경우 모든 항목 리턴"
+      produces:
+      - application/json
+      responses:
+        200:
+          description: "OK"
+          schema:
+            type: object
+            properties:
+              header:
+                $ref: '#/definitions/ApiResponse'
+              result:
+                type: array
+                items:
+                  $ref: '#/definitions/transferHistoryInfo'
+              meta:
+                type: object
+                properties:
+                  pagination:
+                    $ref: '#/definitions/paginator'
+        400:
+          $ref: '#/responses/400'
+        401:
+          $ref: '#/responses/401'
+        500:
+          $ref: '#/responses/500'
+    post:
+      tags:
+      - Transfer
+      summary: "입출금"
+      description: "
+        인증 정보가 SMS일 경우 authToken을 함께 보낸다.
+        authToken은 GET /auth/sms/validators를 통해 받은 requestCode
+      "
+      consumes:
+      - application/x-www-form-urlencoded
+      parameters:
+      - name: coinId
+        in: formData
+        type: integer
+        required: true
+      - name: transferType
+        in: formData
+        type: string
+        enum: ['I', 'O']
+        required: true
+        description: "I: 입금, O: 출금"
+      - name: amount
+        in: formData
+        type: number
+        required: true
+      - name: toAddress
+        in: formData
+        type: string
+        description: "지갑주소 혹은 은행 계좌번호"
+      - name: toParam
+        in: formData
+        type: string
+        description: "태그 혹은 은행 코드"
+      - name: authType
+        in: formData
+        type: string
+        enum: ['SMS', 'OTP']
+        description: "
+          SMS: 휴대폰\n
+          OTP: OTP
+        "
+        required: true
+      - name: authValue
+        in: formData
+        type: string
+        required: true
+      - name: authToken
+        in: formData
+        type: string
+      # - in: body
+      #   name: transfer
+      #   schema:
+      #     type: object
+      #     required:
+      #     - coinId
+      #     - transferType
+      #     - price
+      #     properties:
+      #       coinId:
+      #         type: integer
+      #       transferType:
+      #         type: string
+      #         enum: ['I', 'O']
+      #       amount:
+      #         type: number
+      #       fromAddress:
+      #         type: string
+      #         description: "지갑주소 혹은 은행 계좌번호"
+      #       fromParam:
+      #         type: string
+      #         description: "태그 혹은 은행 코드"
+      #       toAddress:
+      #         type: string
+      #         description: "지갑주소 혹은 은행 계좌번호"
+      #       toParam:
+      #         type: string
+      #         description: "태그 혹은 은행 코드"
+      produces:
+      - application/json
+      responses:
+        201:
+          description: "CREATED"
+          schema:
+            type: object
+            properties:
+              header:
+                $ref: '#/definitions/ApiResponse'
+              result:
+                $ref: '#/definitions/transferHistoryInfo'
+        400:
+          $ref: '#/responses/400'
+        401:
+          $ref: '#/responses/401'
+        403:
+          #description: "권한 없음 - SMS/OTP 정보 불일치, 입출금 제한 위반 등"
+          $ref: '#/responses/403'
+        500:
+          $ref: '#/responses/500'
+  /transfers/{transferId}:
+    get:
+      tags:
+      - Transfer
+      summary: "입출금 상세"
+      parameters:
+      - name: transferId
+        in: path
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        200:
+          description: "OK"
+          schema:
+            type: object
+            properties:
+              header:
+                $ref: '#/definitions/ApiResponse'
+              result:
+                $ref: '#/definitions/transferHistoryInfo'
+        400:
+          $ref: '#/responses/400'
+        401:
+          $ref: '#/responses/401'
+        403:
+          $ref: '#/responses/403'
+        404:
+          $ref: '#/responses/404'
+        500:
+          $ref: '#/responses/500'
+    delete:
+      tags:
+      - Transfer
+      summary: "입출금 내역 삭제"
+      parameters:
+      - name: transferId
+        in: path
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        204:
+          description: "DELETED"
+          # schema:
+          #   type: object
+          #   properties:
+          #     header:
+          #       $ref: '#/definitions/ApiResponse'
+        400:
+          $ref: '#/responses/400'
+        401:
+          $ref: '#/responses/401'
+        403:
+          $ref: '#/responses/403'
+        404:
+          $ref: '#/responses/404'
+        500:
+          $ref: '#/responses/500'
+      deprecated: true
+  /transfers/{transferId}/delete:
+    post:
+      tags:
+      - Transfer
+      summary: "입출금 내역 삭제"
+      parameters:
+      - name: transferId
+        in: path
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        204:
+          description: "DELETED"
+          # schema:
+          #   type: object
+          #   properties:
+          #     header:
+          #       $ref: '#/definitions/ApiResponse'
+        400:
+          $ref: '#/responses/400'
+        401:
+          $ref: '#/responses/401'
+        403:
+          $ref: '#/responses/403'
+        404:
+          $ref: '#/responses/404'
+        500:
+          $ref: '#/responses/500'
+  /orders:
+    get:
+      tags:
+      - Order
+      summary: "주문 내역 - 거래창 미체결/체결 내역, 암호화폐 거래 내역"
+      parameters:
+      - name: marketId
+        in: query
+        required: false
+        type: integer
+      - name: cidx
+        in: query
+        required: false
+        type: integer
+      - name: completed
+        description: "체결 여부: N|Y"
+        in: query
+        type: string
+        enum: ['N', 'Y']
+      - name: orderType
+        in: query
+        type: string
+        enum: ['B', 'S']
+      - name: fromDate
+        in: query
+        type: string
+        description: "yyyy-mm-ddThh:ii:ssZ"
+      - name: toDate
+        in: query
+        type: string
+        description: "yyyy-mm-ddThh:ii:ssZ"
+      - name: page
+        in: query
+        type: integer
+        default: 1
+      - name: count
+        in: query
+        type: integer
+        description: "미지정일 경우 모든 항목 리턴"
+      produces:
+      - application/json
+      responses:
+        200:
+          description: "OK"
+          schema:
+            type: object
+            properties:
+              header:
+                $ref: '#/definitions/ApiResponse'
+              result:
+                type: array
+                items:
+                  $ref: '#/definitions/orderHistoryInfo'
+              meta:
+                type: object
+                properties:
+                  pagination:
+                    $ref: '#/definitions/paginator'
+        400:
+          $ref: '#/responses/400'
+        401:
+          $ref: '#/responses/401'
+        500:
+          $ref: '#/responses/500'
+    post:
+      tags:
+      - Order
+      summary: "주문하기"
+      consumes:
+      - application/x-www-form-urlencoded
+      parameters:
+      - name: marketId
+        in: formData
+        required: true
+        type: integer
+      - name: amount
+        in: formData
+        required: true
+        type: number
+      - name: orderType
+        in: formData
+        required: true
+        type: string
+        enum: ['B', 'S']
+      - name: callType
+        in: formData
+        required: true
+        type: string
+        enum: ['N', 'M']
+      - name: price
+        in: formData
+        required: false
+        type: number
+      produces:
+      - application/json
+      responses:
+        201:
+          description: "ORDERED"
+          schema:
+            type: object
+            properties:
+              header:
+                $ref: '#/definitions/ApiResponse'
+              result:
+                $ref: '#/definitions/orderHistoryInfo'
+        400:
+          $ref: '#/responses/400'
+        401:
+          $ref: '#/responses/401'
+        403:
+          $ref: '#/responses/403'
+        500:
+          $ref: '#/responses/500'
+    delete:
+      tags:
+      - Order
+      summary: "주문 일괄 취소"
+      consumes:
+      - application/x-www-form-urlencoded
+      parameters:
+      - name: orderIds
+        in: body
+        required: true
+        schema:
+          type: string
+          description: "CSV"
+          example: "12,151,234,999"
+      produces:
+      - application/json
+      responses:
+        200:
+          description: "OK"
+          schema:
+            type: object
+            properties:
+              header:
+                $ref: '#/definitions/ApiResponse'
+              result:
+                type: array
+                items:
+                  type: integer
+                  description: "취소된 주문 번호"
+        400:
+          $ref: '#/responses/400'
+        401:
+          $ref: '#/responses/401'
+        403:
+          #description: "권한 없음 - 삭제할 수 없는 항목 포함"
+          $ref: '#/responses/403'
+        500:
+          $ref: '#/responses/500'
+      deprecated: true
+  /orders/delete:
+    post:
+      tags:
+      - Order
+      summary: "주문 일괄 취소"
+      consumes:
+      - application/x-www-form-urlencoded
+      parameters:
+      - name: orderIds
+        in: body
+        required: true
+        schema:
+          type: string
+          description: "CSV"
+          example: "12,151,234,999"
+      produces:
+      - application/json
+      responses:
+        200:
+          description: "OK"
+          schema:
+            type: object
+            properties:
+              header:
+                $ref: '#/definitions/ApiResponse'
+              result:
+                type: array
+                items:
+                  type: integer
+                  description: "취소된 주문 번호"
+        400:
+          $ref: '#/responses/400'
+        401:
+          $ref: '#/responses/401'
+        403:
+          #description: "권한 없음 - 삭제할 수 없는 항목 포함"
+          $ref: '#/responses/403'
+        500:
+          $ref: '#/responses/500'
+  /orders/{orderId}:
+    get:
+      tags:
+      - Order
+      summary: "주문 상세"
+      parameters:
+      - name: orderId
+        in: path
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        200:
+          description: "OK"
+          schema:
+            type: object
+            properties:
+              header:
+                $ref: '#/definitions/ApiResponse'
+              result:
+                $ref: '#/definitions/orderHistoryInfo'
+        400:
+          $ref: '#/responses/400'
+        401:
+          $ref: '#/responses/401'
+        403:
+          $ref: '#/responses/403'
+        404:
+          $ref: '#/responses/404'
+        500:
+          $ref: '#/responses/500'
+      deprecated: true
+    put:
+      tags:
+      - Order
+      summary: "주문 수정하기"
+      parameters:
+      - name: orderId
+        in: path
+        type: integer
+        required: true
+      - name: amount
+        in: query
+        required: true
+        type: number
+      - name: price
+        in: query
+        required: false
+        type: number
+      produces:
+      - application/json
+      responses:
+        200:
+          description: "MODIFIED"
+          schema:
+            type: object
+            properties:
+              header:
+                $ref: '#/definitions/ApiResponse'
+        400:
+          $ref: '#/responses/400'
+        401:
+          $ref: '#/responses/401'
+        403:
+          $ref: '#/responses/403'
+        404:
+          $ref: '#/responses/404'
+        500:
+          $ref: '#/responses/500'
+      deprecated: true
+    delete:
+      tags:
+      - Order
+      summary: "주문 취소"
+      parameters:
+      - name: orderId
+        in: path
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        204:
+          description: "CANCELED"
+          # schema:
+          #   type: object
+          #   properties:
+          #     header:
+          #       $ref: '#/definitions/ApiResponse'
+        400:
+          $ref: '#/responses/400'
+        401:
+          $ref: '#/responses/401'
+        403:
+          $ref: '#/responses/403'
+        404:
+          $ref: '#/responses/404'
+        500:
+          $ref: '#/responses/500'
+      deprecated: true
+  /orders/{orderId}/delete:
+    post:
+      tags:
+      - Order
+      summary: "주문 취소"
+      parameters:
+      - name: orderId
+        in: path
+        required: true
+        type: integer
+      - name: marketId
+        in: query
+        type: integer
+      produces:
+      - application/json
+      responses:
+        204:
+          description: "CANCELED"
+          # schema:
+          #   type: object
+          #   properties:
+          #     header:
+          #       $ref: '#/definitions/ApiResponse'
+        400:
+          $ref: '#/responses/400'
+        401:
+          $ref: '#/responses/401'
+        403:
+          $ref: '#/responses/403'
+        404:
+          $ref: '#/responses/404'
+        500:
+          $ref: '#/responses/500'
+  /orders/dexko/{marketId}:
+    get:
+      tags:
+      - Order
+      summary: "거래소 주문 내역"
+      parameters:
+      - name: marketId
+        in: path
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        200:
+          description: "OK"
+          schema:
+            type: object
+            properties:
+              header:
+                $ref: '#/definitions/ApiResponse'
+              result:
+                type: array
+                items:
+                  $ref: '#/definitions/orderTickHistoryInfo'
+              meta:
+                type: object
+                properties:
+                  pagination:
+                    $ref: '#/definitions/paginator'
+        400:
+          $ref: '#/responses/400'
+        500:
+          $ref: '#/responses/500'
+  /orders/dexko:
+    get:
+      tags:
+      - Order
+      summary: "거래소 주문 내역 - 전체 마켓"
+      parameters:
+      - name: marketId
+        in: path
+        required: true
+        type: integer
+      - name: completed
+        description: "체결 여부: N|Y"
+        in: query
+        required: false
+        type: string
+        enum: ['N', 'Y']
+      - name: orderType
+        description: "null : 전체, buy: 매수, sell: 매도"
+        in: query
+        required: false
+        type: string
+        enum: ['B', 'S']
+      - name: page
+        in: query
+        type: integer
+        default: 1
+      - name: count
+        in: query
+        type: integer
+        default: 10
+      produces:
+      - application/json
+      responses:
+        200:
+          description: "OK"
+          schema:
+            type: object
+            properties:
+              header:
+                $ref: '#/definitions/ApiResponse'
+              result:
+                type: array
+                items:
+                  $ref: '#/definitions/marketOrderHistoryInfo'
+              meta:
+                type: object
+                properties:
+                  pagination:
+                    $ref: '#/definitions/paginator'
+        400:
+          $ref: '#/responses/400'
+        500:
+          $ref: '#/responses/500'
+
+  /addresses:
+    get:
+      tags:
+      - Address
+      summary: "주소록 가져오기"
+      parameters:
+      - name: coinId
+        in: query
+        type: integer
+      - name: page
+        in: query
+        type: integer
+        default: 1
+      - name: count
+        in: query
+        type: integer
+        description: "미지정일 경우 모든 항목 리턴"
+      produces:
+      - application/json
+      responses:
+        200:
+          description: "OK"
+          schema:
+            type: object
+            properties:
+              header:
+                $ref: '#/definitions/ApiResponse'
+              result:
+                type: array
+                items:
+                  $ref: '#/definitions/coinAddressInfo'
+              meta:
+                type: object
+                properties:
+                  pagination:
+                    $ref: '#/definitions/paginator'
+        400:
+          $ref: '#/responses/400'
+        401:
+          $ref: '#/responses/401'
+        500:
+          $ref: '#/responses/500'
+    post:
+      tags:
+      - Address
+      summary: "주소록 등록"
+      consumes:
+      - application/x-www-form-urlencoded
+      parameters:
+      - name: coinId
+        in: formData
+        required: true
+        type: integer
+      - name: address
+        in: formData
+        required: true
+        type: string
+      - name: tag
+        in: formData
+        required: false
+        type: string
+      - name: name
+        in: formData
+        required: false
+        type: string
+      produces:
+      - application/json
+      responses:
+        201:
+          description: "CREATED"
+          schema:
+            type: object
+            properties:
+              header:
+                $ref: '#/definitions/ApiResponse'
+              result:
+                $ref: '#/definitions/coinAddressInfo'
+        400:
+          $ref: '#/responses/400'
+        401:
+          $ref: '#/responses/401'
+        500:
+          $ref: '#/responses/500'
+  /addresses/{addressId}:
+    get:
+      tags:
+      - Address
+      summary: "주소록 상세"
+      parameters:
+      - name: addressId
+        in: path
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        200:
+          description: "OK"
+          schema:
+            type: object
+            properties:
+              header:
+                $ref: '#/definitions/ApiResponse'
+              result:
+                $ref: '#/definitions/coinAddressInfo'
+              meta:
+                type: object
+                properties:
+                  navigation:
+                    $ref: '#/definitions/boardItemPrevNextInfo'
+        400:
+          $ref: '#/responses/400'
+        401:
+          $ref: '#/responses/401'
+        403:
+          $ref: '#/responses/403'
+        404:
+          $ref: '#/responses/404'
+        500:
+          $ref: '#/responses/500'
+    put:
+      tags:
+      - Address
+      summary: "주소록 수정"
+      parameters:
+      - name: addressId
+        in: path
+        required: true
+        type: integer
+      - name: address
+        in: query
+        required: true
+        type: string
+      - name: tag
+        in: query
+        required: false
+        type: string
+      responses:
+        200:
+          description: "OK"
+          schema:
+            type: object
+            properties:
+              header:
+                $ref: '#/definitions/ApiResponse'
+              result:
+                $ref: '#/definitions/coinAddressInfo'
+        400:
+          $ref: '#/responses/400'
+        401:
+          $ref: '#/responses/401'
+        403:
+          $ref: '#/responses/403'
+        404:
+          $ref: '#/responses/404'
+        500:
+          $ref: '#/responses/500'
+      deprecated: true
+    delete:
+      tags:
+      - Address
+      summary: "주소록 삭제"
+      parameters:
+      - name: addressId
+        in: path
+        required: true
+        type: integer
+      responses:
+        204:
+          description: "DELETED"
+          # schema:
+          #   type: object
+          #   properties:
+          #     header:
+          #       $ref: '#/definitions/ApiResponse'
+        400:
+          $ref: '#/responses/400'
+        401:
+          $ref: '#/responses/401'
+        403:
+          $ref: '#/responses/403'
+        404:
+          $ref: '#/responses/404'
+        500:
+          $ref: '#/responses/500'
+      deprecated: true
+  /addresses/{addressId}/update:
+    post:
+      tags:
+      - Address
+      summary: "주소록 수정"
+      parameters:
+      - name: addressId
+        in: path
+        required: true
+        type: integer
+      - name: address
+        in: query
+        required: true
+        type: string
+      - name: tag
+        in: query
+        required: false
+        type: string
+      responses:
+        200:
+          description: "OK"
+          schema:
+            type: object
+            properties:
+              header:
+                $ref: '#/definitions/ApiResponse'
+              result:
+                $ref: '#/definitions/coinAddressInfo'
+        400:
+          $ref: '#/responses/400'
+        401:
+          $ref: '#/responses/401'
+        403:
+          $ref: '#/responses/403'
+        404:
+          $ref: '#/responses/404'
+        500:
+          $ref: '#/responses/500'
+  /addresses/{addressId}/delete:
+    post:
+      tags:
+      - Address
+      summary: "주소록 삭제"
+      parameters:
+      - name: addressId
+        in: path
+        required: true
+        type: integer
+      responses:
+        204:
+          description: "DELETED"
+          # schema:
+          #   type: object
+          #   properties:
+          #     header:
+          #       $ref: '#/definitions/ApiResponse'
+        400:
+          $ref: '#/responses/400'
+        401:
+          $ref: '#/responses/401'
+        403:
+          $ref: '#/responses/403'
+        404:
+          $ref: '#/responses/404'
+        500:
+          $ref: '#/responses/500'
+
+  /prices/call:
+    get:
+      tags:
+      - Price
+      summary: "호가 정보"
+      responses:
+        200:
+          description: "OK"
+          schema:
+            type: object
+            properties:
+              header:
+                $ref: '#/definitions/ApiResponse'
+              result:
+                type: array
+                items:
+                  $ref: '#/definitions/marketCallPriceInfo'
+        500:
+          $ref: '#/responses/500'
+      deprecated: true
+  /prices/call/{marketId}:
+    get:
+      tags:
+      - Price
+      summary: "마켓 호가 정보"
+      parameters:
+      - name: marketId
+        in: path
+        type: integer
+        required: true
+      responses:
+        200:
+          description: "OK"
+          schema:
+            type: object
+            properties:
+              header:
+                $ref: '#/definitions/ApiResponse'
+              result:
+                $ref: '#/definitions/marketCallPriceInfo'
+        400:
+          $ref: '#/responses/400'
+        404:
+          $ref: '#/responses/404'
+        500:
+          $ref: '#/responses/500'
+  /prices/daily/{marketId}:
+    get:
+      tags:
+      - Price
+      summary: "일자별 마켓 시세 정보"
+      parameters:
+      - name: marketId
+        in: path
+        type: integer
+        required: true
+      - name: start
+        in: query
+        type: string
+        format: "YYYY-MM-DDTHH:II:SSZ"
+        #example: "2018-01-12T13:49:36Z"
+        description: "시작일: 기본값은 어제, YYYY-MM-DDTHH:II:SSZ"
+      - name: end
+        in: query
+        type: string
+        format: "YYYY-MM-DDTHH:II:SSZ"
+        #example: "2018-01-12T13:49:36Z"
+        description: "종료일: 기본값은 오늘, YYYY-MM-DDTHH:II:SSZ"
+      responses:
+        200:
+          description: "OK"
+          schema:
+            type: object
+            properties:
+              header:
+                $ref: '#/definitions/ApiResponse'
+              result:
+                $ref: '#/definitions/dailyPricesInfo'
+        400:
+          $ref: '#/responses/400'
+        404:
+          $ref: '#/responses/404'
+        500:
+          $ref: '#/responses/500'
+  /prices/current/{marketId}:
+    get:
+      tags:
+      - Price
+      summary: "현재 시세"
+      parameters:
+      - name: marketId
+        in: path
+        type: integer
+        required: true
+      responses:
+        200:
+          description: "OK"
+          schema:
+            type: object
+            properties:
+              header:
+                $ref: '#/definitions/ApiResponse'
+              result:
+                $ref: '#/definitions/dailyPriceInfo'
+        400:
+          $ref: '#/responses/400'
+        500:
+          $ref: '#/responses/500'
+  /prices/current:
+    get:
+      tags:
+      - Price
+      summary: "모든 코인 현재 시세"
+      responses:
+        200:
+          description: "OK"
+          schema:
+            type: object
+            properties:
+              header:
+                $ref: '#/definitions/ApiResponse'
+              result:
+                type: array
+                items:
+                  $ref: '#/definitions/dailyPriceInfo'
+        400:
+          $ref: '#/responses/400'
+        500:
+          $ref: '#/responses/500'
+
+  # /world-prices:
+  #   get:
+  #     tags:
+  #     - Price
+  #   post:
+  #     tags:
+  #     - Price
+  #   delete:
+  #     tags:
+  #     - Price
+  # /world-prices/{id}:
+  #   get:
+  #     tags:
+  #     - Price
+  #   post:
+  #     tags:
+  #     - Price
+  #   delete:
+  #     tags:
+  #     - Price
+
+  /centers:
+    get:
+      tags:
+      - Center
+      summary: "거래소 정보 리스트"
+      responses:
+        200:
+          description: "OK"
+          schema:
+            type: object
+            properties:
+              header:
+                $ref: '#/definitions/ApiResponse'
+              result:
+                type: array
+                items:
+                  $ref: '#/definitions/centerInfo'
+        500:
+          $ref: '#/responses/500'
+  /centers/{centerId}:
+    get:
+      tags:
+      - Center
+      summary: "거래소 정보"
+      parameters:
+      - name: centerId
+        in: path
+        type: integer
+        required: true
+      responses:
+        200:
+          description: "OK"
+          schema:
+            type: object
+            properties:
+              header:
+                $ref: '#/definitions/ApiResponse'
+              result:
+                $ref: '#/definitions/centerInfo'
+        404:
+          $ref: '#/responses/404'
+        500:
+          $ref: '#/responses/500'
+  /centers/dexko:
+    get:
+      tags:
+      - Center
+      summary: "DEXKO 거래소 정보"
+      responses:
+        200:
+          description: "OK"
+          schema:
+            type: object
+            properties:
+              header:
+                $ref: '#/definitions/ApiResponse'
+              result:
+                $ref: '#/definitions/centerInfo'
+        404:
+          $ref: '#/responses/404'
+        500:
+          $ref: '#/responses/500'
+  /centers/dexko/coins:
+    get:
+      tags:
+      - Center
+      summary: "DEXKO 지갑 서버 코인 현황"
+      responses:
+        200:
+          description: "OK"
+          schema:
+            type: object
+            properties:
+              header:
+                $ref: '#/definitions/ApiResponse'
+              result:
+                type: array
+                items:
+                  $ref: '#/definitions/coinBalance'
+        500:
+          $ref: '#/responses/500'
+  /centers/dexko/coins/{coinId}:
+    get:
+      tags:
+      - Center
+      summary: "DEXKO 지갑 서버 코인 현황"
+      parameters:
+      - name: coinId
+        in: path
+        type: integer
+        required: true
+      responses:
+        200:
+          description: "OK"
+          schema:
+            type: object
+            properties:
+              header:
+                $ref: '#/definitions/ApiResponse'
+              result:
+                $ref: '#/definitions/coinBalance'
+        400:
+          $ref: '#/responses/400'
+        404:
+          #description: "(코인)항목 없음"
+          $ref: '#/responses/404'
+        500:
+          $ref: '#/responses/500'
+  /centers/dexko/data/terms-of-use:
+    get:
+      tags:
+      - Center
+      summary: "이용약관"
+      responses:
+        200:
+          description: "OK"
+          schema:
+            type: object
+            properties:
+              header:
+                $ref: '#/definitions/ApiResponse'
+              result:
+                type: object
+                properties:
+                  data:
+                    type: string
+                    format: "html"
+        404:
+          $ref: '#/responses/404'
+        500:
+          $ref: '#/responses/500'
+  /centers/dexko/data/privacy:
+    get:
+      tags:
+      - Center
+      summary: "개인정보보호방침"
+      responses:
+        200:
+          description: "OK"
+          schema:
+            type: object
+            properties:
+              header:
+                $ref: '#/definitions/ApiResponse'
+              result:
+                type: object
+                properties:
+                  data:
+                    type: string
+                    format: "html"
+        404:
+          $ref: '#/responses/404'
+        500:
+          $ref: '#/responses/500'
+  /centers/dexko/data/banks:
+    get:
+      tags:
+      - Center
+      summary: "은행 정보"
+      responses:
+        200:
+          description: "OK"
+          schema:
+            type: object
+            properties:
+              header:
+                $ref: '#/definitions/ApiResponse'
+              result:
+                type: array
+                items:
+                  $ref: '#/definitions/bankInfo'
+        500:
+          $ref: '#/responses/500'
+
+  /questions:
+    get:
+      tags:
+      - CS
+      summary: "문의내역 리스트"
+      parameters:
+      - name: replied
+        in: query
+        required: false
+        type: string
+        enum: ['N', 'Y']
+      - name: page
+        in: query
+        required: false
+        type: integer
+        default: 1
+      - name: count
+        in: query
+        type: integer
+        description: "미지정일 경우 모든 항목 리턴"
+      produces:
+      - application/json
+      responses:
+        200:
+          description: "OK"
+          schema:
+            type: object
+            properties:
+              header:
+                $ref: '#/definitions/ApiResponse'
+              result:
+                $ref: '#/definitions/boardItemInfo'
+              meta:
+                type: object
+                properties:
+                  pagination:
+                    $ref: '#/definitions/paginator'
+        400:
+          $ref: '#/responses/400'
+        401:
+          $ref: '#/responses/401'
+        500:
+          $ref: '#/responses/500'
+    post:
+      tags:
+      - CS
+      summary: "문의내역 등록"
+      consumes:
+      - application/x-www-form-urlencoded
+      parameters:
+      - name: category
+        in: formData
+        type: number
+        required: true
+      - name: title
+        in: formData
+        type: string
+        required: true
+      - name: contents
+        in: formData
+        type: string
+        required: true
+      responses:
+        201:
+          description: "CREATED"
+          schema:
+            type: object
+            properties:
+              header:
+                $ref: '#/definitions/ApiResponse'
+              result:
+                $ref: '#/definitions/boardItemInfo'
+        400:
+          $ref: '#/responses/400'
+        401:
+          $ref: '#/responses/401'
+        403:
+          $ref: '#/responses/403'
+        500:
+          $ref: '#/responses/500'
+  /questions/{questionId}:
+    get:
+      tags:
+      - CS
+      summary: "문의내역 상세"
+      parameters:
+      - name: questionId
+        in: path
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        200:
+          description: "OK"
+          schema:
+            type: object
+            properties:
+              header:
+                $ref: '#/definitions/ApiResponse'
+              result:
+                $ref: '#/definitions/boardItemInfo'
+              meta:
+                type: object
+                properties:
+                  navigation:
+                    $ref: '#/definitions/boardItemPrevNextInfo'
+        400:
+          $ref: '#/responses/400'
+        401:
+          $ref: '#/responses/401'
+        403:
+          $ref: '#/responses/403'
+        404:
+          $ref: '#/responses/404'
+        500:
+          $ref: '#/responses/500'
+    put:
+      tags:
+      - CS
+      summary: "문의내역 수정"
+      consumes:
+      - application/x-www-form-urlencoded
+      parameters:
+      - name: questionId
+        in: path
+        required: true
+        type: integer
+      - name: contents
+        in: body
+        required: false
+        schema:
+          type: string
+      responses:
+        200:
+          description: "OK"
+          schema:
+            type: object
+            properties:
+              header:
+                $ref: '#/definitions/ApiResponse'
+              result:
+                $ref: '#/definitions/boardItemInfo'
+        400:
+          $ref: '#/responses/400'
+        401:
+          $ref: '#/responses/401'
+        403:
+          $ref: '#/responses/403'
+        404:
+          $ref: '#/responses/404-user'
+        500:
+          $ref: '#/responses/500'
+      deprecated: true
+    delete:
+      tags:
+      - CS
+      summary: "문의내역 삭제"
+      parameters:
+      - name: questionId
+        in: path
+        required: true
+        type: integer
+      responses:
+        204:
+          description: "DELETED"
+          # schema:
+          #   type: object
+          #   properties:
+          #     header:
+          #       $ref: '#/definitions/ApiResponse'
+        400:
+          $ref: '#/responses/400'
+        401:
+          $ref: '#/responses/401'
+        403:
+          #description: "권한 없음 - 답변 달린 항목일 경우 삭제 불가"
+          $ref: '#/responses/403'
+        404:
+          $ref: '#/responses/404-user'
+        500:
+          $ref: '#/responses/500'
+      deprecated: true
+  /board/faqs:
+    get:
+      tags:
+      - Board
+      summary: "FAQ 리스트"
+      parameters:
+      - name: page
+        in: query
+        type: integer
+        default: 1
+      - name: count
+        in: query
+        type: integer
+        description: "미지정일 경우 모든 항목 리턴"
+      - name: category
+        in: query
+        type: integer
+        description: "화면상 탭 순서, 1부터 시작"
+      produces:
+      - application/json
+      responses:
+        200:
+          description: "OK"
+          schema:
+            type: object
+            properties:
+              header:
+                $ref: '#/definitions/ApiResponse'
+              result:
+                type: array
+                items:
+                  $ref: '#/definitions/boardItemInfo'
+              meta:
+                type: object
+                properties:
+                  pagination:
+                    $ref: '#/definitions/paginator'
+        400:
+          $ref: '#/responses/400'
+        500:
+          $ref: '#/responses/500'
+  /board/faqs/{faqId}:
+    get:
+      tags:
+      - Board
+      summary: "FAQ 상세"
+      parameters:
+      - name: faqId
+        in: path
+        type: integer
+        required: true
+      produces:
+      - application/json
+      responses:
+        200:
+          description: "OK"
+          schema:
+            type: object
+            properties:
+              header:
+                $ref: '#/definitions/ApiResponse'
+              result:
+                $ref: '#/definitions/boardItemInfo'
+              meta:
+                type: object
+                properties:
+                  navigation:
+                    $ref: '#/definitions/boardItemPrevNextInfo'
+        400:
+          $ref: '#/responses/400'
+        404:
+          $ref: '#/responses/404'
+        500:
+          $ref: '#/responses/500'
+
+  /board/notices:
+    get:
+      tags:
+      - Board
+      summary: "공지사항 리스트"
+      parameters:
+      - name: page
+        in: query
+        type: integer
+        default: 1
+      - name: count
+        in: query
+        type: integer
+        description: "미지정일 경우 모든 항목 리턴"
+      produces:
+      - application/json
+      responses:
+        200:
+          description: "OK"
+          schema:
+            type: object
+            properties:
+              header:
+                $ref: '#/definitions/ApiResponse'
+              result:
+                type: array
+                items:
+                  $ref: '#/definitions/boardItemInfo'
+              meta:
+                type: object
+                properties:
+                  pagination:
+                    $ref: '#/definitions/paginator'
+        400:
+          $ref: '#/responses/400'
+        500:
+          $ref: '#/responses/500'
+  /board/notices/{noticeId}:
+    get:
+      tags:
+      - Board
+      summary: "공지사항 상세"
+      parameters:
+      - name: noticeId
+        in: path
+        type: integer
+        required: true
+      produces:
+      - application/json
+      responses:
+        200:
+          description: "OK"
+          schema:
+            type: object
+            properties:
+              header:
+                $ref: '#/definitions/ApiResponse'
+              result:
+                $ref: '#/definitions/boardItemInfo'
+              meta:
+                type: object
+                properties:
+                  navigation:
+                    $ref: '#/definitions/boardItemPrevNextInfo'
+        400:
+          $ref: '#/responses/400'
+        404:
+          $ref: '#/responses/404'
+        500:
+          $ref: '#/responses/500'
+
+  /board/news:
+    get:
+      tags:
+      - Board
+      summary: "뉴스 리스트"
+      parameters:
+      - name: page
+        in: query
+        type: integer
+        default: 1
+      - name: count
+        in: query
+        type: integer
+        description: "미지정일 경우 모든 항목 리턴"
+      produces:
+      - application/json
+      responses:
+        200:
+          description: "OK"
+          schema:
+            type: object
+            properties:
+              header:
+                $ref: '#/definitions/ApiResponse'
+              result:
+                type: array
+                items:
+                  $ref: '#/definitions/boardItemInfo'
+              meta:
+                type: object
+                properties:
+                  pagination:
+                    $ref: '#/definitions/paginator'
+        400:
+          $ref: '#/responses/400'
+        500:
+          $ref: '#/responses/500'
+  /board/news/{newsId}:
+    get:
+      tags:
+      - Board
+      summary: "뉴스 상세"
+      parameters:
+      - name: newsId
+        in: path
+        type: integer
+        required: true
+      produces:
+      - application/json
+      responses:
+        200:
+          description: "OK"
+          schema:
+            type: object
+            properties:
+              header:
+                $ref: '#/definitions/ApiResponse'
+              result:
+                $ref: '#/definitions/boardItemInfo'
+              meta:
+                type: object
+                properties:
+                  navigation:
+                    $ref: '#/definitions/boardItemPrevNextInfo'
+        400:
+          $ref: '#/responses/400'
+        404:
+          $ref: '#/responses/404'
+        500:
+          $ref: '#/responses/500'
+
+  # /board/events
+  # /baord/media
+
+  /board/items:
+    get:
+      tags:
+      - Board
+      summary: "게시물 리스트"
+      description: "
+        type: 게시판 구분(BOARD.BOARD_TYPE)
+        [참고 Trello 카드](https://trello.com/c/VW8aP570)
+        1: 뉴스
+        2: (전문가 분석) 사용안함
+        3: (신규코인 소개) 사용안함
+        4: 공지사항
+        5: 1:1문의
+        6: FAQ
+        7: 이벤트
+        8: 미디어
+        9: 배너 (category 1 : top, 2 : botton),(etc3 0: 새창, 1:현재창)
+        10: 팝업(etc3 0: 새창, 1:현재창)
+      "
+      parameters:
+      - name: type
+        in: query
+        type: integer
+        required: true
+      - name: page
+        in: query
+        type: integer
+        default: 1
+      - name: count
+        in: query
+        type: integer
+        description: "미지정일 경우 모든 항목 리턴"
+      produces:
+      - application/json
+      responses:
+        200:
+          description: "OK"
+          schema:
+            type: object
+            properties:
+              header:
+                $ref: '#/definitions/ApiResponse'
+              result:
+                type: array
+                items:
+                  $ref: '#/definitions/boardItemInfo'
+              meta:
+                type: object
+                properties:
+                  pagination:
+                    $ref: '#/definitions/paginator'
+        400:
+          $ref: '#/responses/400'
+        500:
+          $ref: '#/responses/500'
+  /board/items/{itemId}:
+    get:
+      tags:
+      - Board
+      summary: "게시물 상세"
+      parameters:
+      - name: itemId
+        in: path
+        type: integer
+        required: true
+      produces:
+      - application/json
+      responses:
+        200:
+          description: "OK"
+          schema:
+            type: object
+            properties:
+              header:
+                $ref: '#/definitions/ApiResponse'
+              result:
+                $ref: '#/definitions/boardItemInfo'
+              meta:
+                type: object
+                properties:
+                  navigation:
+                    $ref: '#/definitions/boardItemPrevNextInfo'
+        400:
+          $ref: '#/responses/400'
+        404:
+          $ref: '#/responses/404'
+        500:
+          $ref: '#/responses/500'
+
+  /charts/period/{chartPeriod}:
+    get:
+      tags:
+      - Chart
+      summary: "차트 데이터 가져오기"
+      description: "
+        chartPeriod
+        ---
+        - minutely: 분단위
+        - hourly: 시간단위
+        - daily: 일단위
+
+        sdate/edate: YYYY-MM-DDTHH:II:SSZ | YYYY-MM-DD HH:II:SS
+      "
+      parameters:
+      - name: chartPeriod
+        in: path
+        type: string
+        enum: ['minutely', 'hourly', 'daily']
+        required: true
+      - name: centerId
+        in: query
+        type: number
+        required: false
+      - name: marketId
+        in: query
+        type: number
+        required: false
+      - name: sdate
+        in: query
+        type: string
+        required: false
+      - name: edate
+        in: query
+        type: string
+        required: false
+      produces:
+      - application/json
+      responses:
+        200:
+          description: "OK"
+          schema:
+            type: object
+            properties:
+              header:
+                $ref: '#/definitions/ApiResponse'
+              result:
+                type: array
+                items:
+                  $ref: '#/definitions/chartItem'
+        400:
+          $ref: '#/responses/400'
+        500:
+          $ref: '#/responses/500'
+  /charts/world:
+    get:
+      tags:
+      - Chart
+      summary: "세계 시세 가져오기"
+      description: "
+      "
+      parameters:
+      - name: centerId
+        in: query
+        type: number
+        required: false
+      - name: marketId
+        in: query
+        type: number
+        required: false
+      produces:
+      - application/json
+      responses:
+        200:
+          description: "OK"
+          schema:
+            type: object
+            properties:
+              header:
+                $ref: '#/definitions/ApiResponse'
+              result:
+                type: array
+                items:
+                  $ref: '#/definitions/worldCurrentItem'
+        400:
+          $ref: '#/responses/400'
+        500:
+          $ref: '#/responses/500'
+
+  /notifications:
+    get:
+      tags:
+      - Notification
+      summary: "알림 가져오기"
+      produces:
+      - application/json
+      responses:
+        200:
+          description: "OK"
+          schema:
+            type: object
+            properties:
+              header:
+                $ref: '#/definitions/ApiResponse'
+              result:
+                type: object
+        500:
+          $ref: '#/responses/500'
+  /notifications/{notificationId}:
+    get:
+      tags:
+      - Notification
+      summary: "알림 상세"
+      parameters:
+      - name: notificationId
+        in: path
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        200:
+          description: "OK"
+          schema:
+            type: object
+            properties:
+              header:
+                $ref: '#/definitions/ApiResponse'
+              result:
+                type: object
+        400:
+          $ref: '#/responses/400'
+        404:
+          $ref: '#/responses/404'
+        500:
+          $ref: '#/responses/500'
+
+  # /summary/assets:
+  # /summary/assets/{coinId}:
+  # /summary/blahblah:
+
+# components:
+#   schemas:
+#     QuestionForm:
+#       type: object
+#       properties:
+#         contents:
+#           type: string
+
+definitions:
+  ApiResponse:
+    type: object
+    properties:
+      code:
+        type: integer
+      message:
+        type: string
+      requestTime:
+        type: string
+        format: "YYYY-MM-DDTHH:II:SSZ"
+        example: "2018-01-12T13:49:36Z"
+        description: "YYYY-MM-DDTHH:II:SSZ"
+      responseTime:
+        type: string
+        format: "YYYY-MM-DDTHH:II:SSZ"
+        example: "2018-01-12T13:49:36Z"
+        description: "rfc3339: https://tools.ietf.org/html/rfc3339"
+  privacyInfo:
+    properties:
+      data:
+        type: string
+  memberInfo:
+    properties:
+      id:
+        type: integer
+      countryId:
+        type: integer
+      nickname:
+        type: string
+      name:
+        type: string
+      groupId:
+        type: integer
+      status:
+        type: string
+        enum: ['N', 'E', 'R', 'B', 'Q', 'L', 'H', 'W']
+        description: "
+          N: 최초가입,\n
+          E: 이메일 인증 완료,\n
+          R: 실명 인증 완료,\n
+          B: 계좌 인증 완료,\n
+          Q: 탈퇴,\n
+          L: 잠금,\n
+          H: 휴면계정,
+          W: 탈퇴신청
+        "
+      authInfo:
+        $ref: '#/definitions/authInfo'
+      level:
+        type: integer
+      fee:
+        $ref: '#/definitions/feeInfo'
+  authInfo:
+    properties:
+      authStep:
+        type: string
+        enum: ['N', 'E', 'R', 'B', 'Q', 'L', 'H', 'W']
+      otp:
+        type: string
+        enum: ['N', 'Y']
+        description: "OTP 사용 여부"
+      otpDate:
+        type: string
+        description: "OTP 등록 일자"
+      residence:
+        type: string
+        enum: ['', 'R', 'J', 'E']
+        description: "
+          - '': 신청 이력 없음
+          - R: 신청중
+          - J: 거절
+          - E: 승인 완료
+        "
+      mpRegtime:
+        type: string
+        description: "비대면인증 등록시간"
+      mpAltertime:
+        type: string
+        description: "비대면인증 수정시간"
+  accountInfo:
+    properties:
+      bankId:
+        type: integer
+      accountNo:
+        type: string
+  marketInfo:
+    properties:
+      id:
+        type: integer
+      code:
+        type: string
+      baseCoinId:
+        type: integer
+      baseCoinCode:
+        type: string
+      coinId:
+        type: integer
+      dealCoinCode:
+        type: string
+      callUnit:
+        type: number
+      minTrade:
+        type: number
+      openTime:
+        type: string
+        format: "YYYY-MM-DDTHH:II:SSZ"
+        example: "2018-01-12T13:49:36Z"
+        description: "rfc3339: https://tools.ietf.org/html/rfc3339"
+      enable:
+        type: string
+        enum: ['N', 'Y']
+      sort:
+        type: integer
+        description: "정렬 코드, descending order"
+  coinInfo:
+    properties:
+      id:
+        type: integer
+      code:
+        type: string
+      name:
+        type: string
+      color1:
+        type: string
+      color2:
+        type: string
+      trackUrl:
+        type: string
+      minOut:
+        type: number
+      outFee:
+        type: number
+      sort:
+        type: integer
+        description: "정렬 코드, descending order"
+      confirmCount:
+        type: integer
+      enable:
+        type: string
+        enum: ['N', 'Y']
+      keyCurrency:
+        type: string
+        enum: ['N', 'Y']
+        description: "기축통화 여부"
+  walletInfo:
+    properties:
+      memberId:
+        type: integer
+      coinId:
+        type: integer
+      bankId:
+        type: integer
+      address:
+        type: string
+      tag:
+        type: string
+      total:
+        type: number
+      usingCoin:
+        type: number
+      createdAt:
+        type: string
+        format: "YYYY-MM-DDTHH:II:SSZ"
+        example: "2018-01-12T13:49:36Z"
+        description: "rfc3339: https://tools.ietf.org/html/rfc3339"
+  countryInfo:
+    properties:
+      id:
+        type: integer
+      continent:
+        type: string
+      localCode:
+        type: string
+      name:
+        type: string
+      koName:
+        type: string
+      jpName:
+        type: string
+      cnName:
+        type: string
+      enable:
+        type: string
+        enum: ['N', 'Y']
+  bankInfo:
+    properties:
+      id:
+        type: integer
+      code:
+        type: string
+      name:
+        type: string
+      status:
+        type: string
+        enum: ['N', 'Y']
+  centerInfo:
+    properties:
+      id:
+        type: integer
+      countryId:
+        type: integer
+      name:
+        type: string
+      koName:
+        type: string
+      url:
+        type: string
+      key:
+        type: string
+      money:
+        type: string
+  coinAddressInfo:
+    properties:
+      id:
+        type: integer
+      memberId:
+        type: integer
+      coinId:
+        type: integer
+      name:
+        type: string
+      address:
+        type: string
+      tag:
+        type: string
+      createdAt:
+        type: string
+        format: "YYYY-MM-DDTHH:II:SSZ"
+        example: "2018-01-12T13:49:36Z"
+        description: "rfc3339: https://tools.ietf.org/html/rfc3339"
+  coinPrice:
+    properties:
+      start:
+        type: number
+      close:
+        type: number
+      low:
+        type: number
+      high:
+        type: number
+  orderInfo:
+    properties:
+      userId:
+        type: integer
+      date:
+        type: string
+      completed:
+        type: string
+        enum: ['N', 'Y']
+      orderType:
+        type: string
+        enum: ['B', 'S']
+      callType:
+        type: string
+        enum: ['N', 'M']
+      amount:
+        type: number
+      price:
+        type: number
+      fee:
+        type: number
+  callPriceInfo:
+    properties:
+      price:
+        type: number
+      quantity:
+        type: number
+  marketCallPriceInfo:
+    properties:
+      marketId:
+        type: integer
+      prices:
+        type: object
+        properties:
+          sell:
+            type: array
+            items:
+              $ref: '#/definitions/callPriceInfo'
+          buy:
+            type: array
+            items:
+              $ref: '#/definitions/callPriceInfo'
+  currentPriceInfo:
+    properties:
+      coinId:
+        type: integer
+      price:
+        type: number
+  dailyPriceInfo:
+    properties:
+      marketId:
+        type: integer
+      date:
+        type: string
+        format: "YYYY-MM-DDTHH:II:SSZ"
+        example: "2018-01-12T13:49:36Z"
+        description: "rfc3339: https://tools.ietf.org/html/rfc3339"
+      closeTimestamp:
+        type: string
+        format: "YYYY-MM-DDTHH:II:SSZ"
+        example: "2018-01-12T13:49:36Z"
+        description: "rfc3339: https://tools.ietf.org/html/rfc3339"
+      open:
+        type: number
+      close:
+        type: number
+      low:
+        type: number
+      high:
+        type: number
+      volume:
+        type: number
+  dailyPricesInfo:
+    properties:
+      prices:
+        type: array
+        items:
+          $ref: '#/definitions/dailyPriceInfo'
+  loginHistoryInfo:
+    properties:
+      id:
+        type: integer
+      agent:
+        type: string
+      result:
+        type: string
+        enum: ['N', 'Y']
+      ip:
+        type: string
+      country:
+        type: string
+      msg:
+        type: string
+      time:
+        type: string
+  tickInfo:
+    properties:
+      id:
+        type: integer
+      centerId:
+        type: integer
+      coinId:
+        type: integer
+      price:
+        type: number
+        description: "거래 가격"
+      volume:
+        type: number
+        description: "거래량"
+      createtime:
+        type: string
+        format: "YYYY-MM-DDTHH:II:SSZ"
+        example: "2018-01-12T13:49:36Z"
+        description: "rfc3339: https://tools.ietf.org/html/rfc3339"
+  boardItemInfo:
+    properties:
+      id:
+        type: integer
+      boardId:
+        type: integer
+      title:
+        type: string
+      contents:
+        type: string
+      link:
+        type: string
+        format: "url"
+      thumbnail:
+        type: string
+      regDate:
+        type: string
+        format: "YYYY-MM-DDTHH:II:SSZ"
+        example: "2018-01-12T13:49:36Z"
+        description: "rfc3339: https://tools.ietf.org/html/rfc3339"
+      modDate:
+        type: string
+        format: "YYYY-MM-DDTHH:II:SSZ"
+        example: "2018-01-12T13:49:36Z"
+        description: "rfc3339: https://tools.ietf.org/html/rfc3339"
+      useYn:
+        type: string
+        enum: ['N', 'Y']
+      delYn:
+        type: string
+        enum: ['N', 'Y']
+      notiYn:
+        type: string
+        enum: ['N', 'Y']
+      notiStart:
+        type: string
+      notiEnd:
+        type: string
+      category:
+        type: string
+      hits:
+        type: integer
+      regUser:
+        type: string
+      modUser:
+        type: string
+      answer:
+        type: string
+      answerStatus:
+        type: integer
+      etc1:
+        type: string
+      etc2:
+        type: string
+      etc3:
+        type: string
+      etc4:
+        type: string
+      etc5:
+        type: string
+      dispRegUser:
+        type: string
+        description: "화면 노출 등록자명"
+  transferHistoryInfo:
+    properties:
+      id:
+        type: integer
+      date:
+        type: string
+        description: "yyyy-mm-ddThh:ii:ssZ"
+      coinId:
+        type: integer
+      transferType:
+        type: string
+        enum: ['입금', '출금']
+        description: "I: 입금, O: 출금"
+      amount:
+        type: number
+        description: "거래량"
+      fee:
+        type: number
+        description: "수수료"
+      transactionId:
+        type: string
+        description: "Transaction ID"
+      status:
+        type: string
+        enum: ['준비', '취소', '승인', '처리중', '거절', '실패', '폐기']
+        description: "R(eady), C(canceled), E(nd), P(rocessing), (re)J(ected), F(ailed), D(iscarded)"
+  krwTransferHistoryInfo:
+    properties:
+      id:
+        type: integer
+      date:
+        type: string
+        format: "YYYY-MM-DDTHH:II:SSZ"
+        example: "2018-01-12T13:49:36Z"
+        description: "rfc3339: https://tools.ietf.org/html/rfc3339"
+      transferType:
+        type: string
+        enum: ['입금', '출금']
+        description: "I: 입금, O: 출금"
+      accountType:
+        type: string
+        enum: ['가상계좌', '출금계좌']
+        description: "계좌 구분, V(irtual), W(ithdrawal)"
+      bankName:
+        type: string
+      accountNumber:
+        type: string
+      amount:
+        type: number
+      fee:
+        type: number
+      status:
+        type: string
+        enum: ['준비', '취소', '승인', '처리중', '거절', '실패', '폐기']
+        description: "R(eady), C(canceled), E(nd), P(rocessing), (re)J(ected), F(ailed), D(iscarded)"
+  orderHistoryInfo:
+    properties:
+      id:
+        type: integer
+      marketId:
+        type: integer
+      date:
+        type: string
+        format: "YYYY-MM-DDTHH:II:SSZ"
+        example: "2018-01-12T13:49:36Z"
+        description: "rfc3339: https://tools.ietf.org/html/rfc3339"
+      callType:
+        type: string
+        enum: ['시장가 매수', '지정가 매수', '시장가 매도', '지정가 매도', '매수', '매도']
+      price:
+        type: number
+        description: "주문 가격"
+      amount:
+        type: number
+        description: "주문 개수, 미체결 내역의 수량"
+      chePrice:
+        type: number
+        description: "체결 가격"
+      fee:
+        type: number
+        description: "수수료"
+      cheAmount:
+        type: number
+        description: "총체결 = 총 주문량-남은주문량"
+  orderTickHistoryInfo:
+    properties:
+      createtime:
+        type: string
+        format: "YYYY-MM-DDTHH:II:SSZ"
+        example: "2018-01-12T13:49:36Z"
+        description: "rfc3339: https://tools.ietf.org/html/rfc3339"
+      type:
+        type: string
+        enum: ['S', 'B']
+      price:
+        type: number
+        description: "주문 가격"
+      amount:
+        type: number
+        description: "주문 개수, 미체결 내역의 수량"
+  coinBalance:
+    properties:
+      coinId:
+        type: integer
+      balance:
+        type: number
+  authStepInfo:
+    properties:
+      step:
+        type: string
+        enum: ['email', 'realname', 'account', 'otp']
+      completed:
+        type: string
+        enum: ['N', 'Y']
+      completedDate:
+        type: string
+        format: "YYYY-MM-DDTHH:II:SSZ"
+        example: "2018-01-12T13:49:36Z"
+        description: "rfc3339: https://tools.ietf.org/html/rfc3339"
+  paginatorLink:
+    properties:
+      previous:
+        type: string
+        description: "이전 페이지 링크"
+      next:
+        type: string
+        description: "다음 페이지 링크"
+  paginator:
+    properties:
+      total:
+        type: integer
+        description: 총 리소스 개수
+      page:
+        type: integer
+        description: 현재 페이지 번호
+      countPerPage:
+        type: integer
+        description: 현재 페이지에 표시되는 리소스 개수
+        example: 20
+      totalPages:
+        type: integer
+        description: 총 페이지 수
+      links:
+        $ref: '#/definitions/paginatorLink'
+  boardItemPrevNextInfo:
+    properties:
+      previous:
+        type: object
+        description: "이전 항목, 없으면 null"
+      next:
+        type: object
+        description: "다음 항목, 없으면 null"
+  feeInfo:
+    properties:
+      maker:
+        type: number
+        description: "지정가"
+      taker:
+        type: number
+        description: "시장가"
+  niceInfo:
+    properties:
+      sEncData:
+        type: string
+      m:
+        type: string
+      action:
+        type: string
+      msg:
+        type: string
+      successful:
+        type: string
+  logAuthInfo:
+    properties:
+      msg:
+        type: string
+      successful:
+        type: string
+  smsValidatorResponse:
+    properties:
+      requestCode:
+        type: integer
+        description: "검증 코드 - 검증 요청시 첨부 필요: MAIDX"
+  keyCoinInfo:
+    properties:
+      keyCoin:
+        type: number
+      orderCoins:
+        type: string
+        description: "CSV"
+      orderCoinList:
+        type: array
+        items:
+          type: string
+  marketOrderHistoryInfo:
+    properties:
+      marketId:
+        type: number
+      orders:
+        type: array
+        items:
+          $ref: '#/definitions/orderHistoryInfo'
+  loginTempResponse:
+    properties:
+      token:
+        type: string
+      supportedMeans:
+        type: array
+        items:
+          type: string
+  withdrawalLimit:
+    properties:
+      authLevel:
+        type: number
+      coinId:
+        type: number
+      limit:
+        type: object
+        properties:
+          once:
+            type: number
+          day:
+            type: number
+          month:
+            type: number
+      levelLimit:
+        type: object
+        properties:
+          once:
+            type: number
+          day:
+            type: number
+          month:
+            type: number
+  chartItem:
+    properties:
+      date:
+        type: string
+      centerId:
+        type: number
+      marketId:
+        type: number
+      part:
+        enum: ['I', 'H', 'D']
+      volume:
+        type: number
+      open:
+        type: number
+      close:
+        type: number
+      low:
+        type: number
+      high:
+        type: number
+  worldCurrentItem:
+    properties:
+      centerId:
+        type: number
+      marketId:
+        type: number
+      currentPrice:
+        type: number
+      yesterdayPrice:
+        type: number
+      mkCidxName:
+        type: string
+      ciCode:
+        type: string
+      cidxName:
+        type: string
+      cidxCode:
+        type: string
+      tcName:
+        type: string
+      cntidx:
+        type: number
+      tcMoney:
+        type: string
+
+parameters:
+  # page-offset:
+  #   name: offset
+  #   in: query
+  #   type: integer
+  #   default: 1
+  #   description: specifies the page number to be displayed
+  # page-limit:
+  #   name: limit
+  #   in: query
+  #   type: integer
+  #   default: 10
+  #   descripton: limit the number of items on a page
+
+responses:
+  400:
+    description: "요청 오류 - 패러미터 오류/코인 없음/기타"
+    schema:
+      type: object
+      properties:
+        header:
+          $ref: '#/definitions/ApiResponse'
+  401:
+    description: "미로그인"
+    schema:
+      type: object
+      properties:
+        header:
+          $ref: '#/definitions/ApiResponse'
+  403:
+    description: "권한 없음"
+    schema:
+      type: object
+      properties:
+        header:
+          $ref: '#/definitions/ApiResponse'
+  404:
+    description: "항목 없음"
+    schema:
+      type: object
+      properties:
+        header:
+          $ref: '#/definitions/ApiResponse'
+  404-user:
+    description: "(사용자)항목 없음"
+    schema:
+      type: object
+      properties:
+        header:
+          $ref: '#/definitions/ApiResponse'
+  500:
+    description: "Other Exceptions"
+    schema:
+      type: object
+      properties:
+        header:
+          $ref: '#/definitions/ApiResponse'
